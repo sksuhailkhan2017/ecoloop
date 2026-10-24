@@ -85,7 +85,8 @@ function loadState(): State {
     if (!raw) return seedState();
     const parsed = JSON.parse(raw) as Partial<State>;
     if (parsed.version !== VERSION || !Array.isArray(parsed.users)) return seedState();
-    return { ...seedState(), ...parsed } as State;
+    // Rewards are a static catalog (no user data) — always refresh from the seed.
+    return { ...seedState(), ...parsed, rewards: DEMO_REWARDS() } as State;
   } catch {
     return seedState();
   }

@@ -511,8 +511,8 @@ export function DEMO_REWARDS(): Reward[] {
     {
       id: "r-coffee",
       businessName: "Unionville Main Street Café",
-      title: "Free coffee",
-      description: "One regular drip coffee or tea, any size. Bring your own mug for a smile.",
+      title: "$1 off any hot drink",
+      description: "Coffee, tea or hot chocolate, any size. Bring your own mug for an extra 25¢ off.",
       cost: 50,
       address: "Main Street, Unionville · fictional",
       emoji: "☕",
@@ -529,7 +529,7 @@ export function DEMO_REWARDS(): Reward[] {
     {
       id: "r-scoop",
       businessName: "Wismer Scoop",
-      title: "Free single-scoop cone",
+      title: "20% off any cone",
       description: "Any flavour, waffle cone included. Dairy-free options available.",
       cost: 90,
       address: "Bur Oak & McCowan, Wismer · fictional",
@@ -547,7 +547,7 @@ export function DEMO_REWARDS(): Reward[] {
     {
       id: "r-seedling",
       businessName: "Berczy Greens Nursery",
-      title: "Free herb seedling",
+      title: "25% off herb seedlings",
       description: "Basil, mint or parsley in a compostable pot. Spring to fall.",
       cost: 120,
       address: "16th Avenue, Berczy Village · fictional",
@@ -556,8 +556,8 @@ export function DEMO_REWARDS(): Reward[] {
     {
       id: "r-tuneup",
       businessName: "Milliken Mills Bike Co.",
-      title: "Free bike safety check",
-      description: "Brakes, gears and tire pressure checked while you wait.",
+      title: "$10 off a tune-up",
+      description: "Brakes, gears and tire pressure adjusted while you wait.",
       cost: 150,
       address: "Kennedy Road, Milliken · fictional",
       emoji: "🚲",

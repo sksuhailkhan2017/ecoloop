@@ -2,8 +2,8 @@
   {
     "id": "seed-reward-coffee",
     "businessName": "Unionville Main Street Café",
-    "title": "Free coffee",
-    "description": "One regular drip coffee. Fictional business for demo purposes.",
+    "title": "$1 off any hot drink",
+    "description": "Coffee, tea or hot chocolate, any size. Fictional business for demo purposes.",
     "cost": 50,
     "address": "Main Street Unionville, Markham (fictional)",
     "emoji": "☕"
