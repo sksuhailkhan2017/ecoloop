@@ -93,6 +93,22 @@ Python tooling is separate — see [python/README.md](python/README.md).
 | `FIREBASE_STORAGE_BUCKET` | Bucket name from Firebase console → Storage |
 | `RULES_PATH` | Optional override; defaults to `../data/markham_rules.json` |
 
+## Scanning with Gemini
+
+With `NEXT_PUBLIC_USE_BACKEND_SCAN=true` (set in `netlify.toml`) the photo is POSTed to `POST /api/scan`,
+which runs Gemini vision with `data/markham_rules.json` in the prompt and returns per-part bins (or, for
+a receipt photo, one entry per purchased product). The backend needs `GEMINI_API_KEY` and `DEMO_MODE=true`
+(skips Firebase token checks). If the backend is asleep, out of quota or offline, the UI falls back to
+matching the typed hint against the rules list, then to a searchable "help us identify" picker.
+
+- Default model `gemini-flash-latest`; on 404/429/503 it falls through `gemini-3.5-flash`,
+  `gemini-flash-lite-latest`, `gemini-3.8-flash`, ... (`backend/src/lib/gemini.ts`). The 2.x models are
+  retired for new API keys.
+- **Free tier quota is 20 requests per day per model.** Enable billing on the Google AI Studio project
+  before a public demo, or expect scans to drop to the hint matcher after ~100 scans/day.
+- Test locally: `cd backend && npx tsx scripts/dev/scan-test.mts path/to/photo.jpg "optional hint"`.
+- No Google Maps key is needed: depot links open a Maps search URL.
+
 ## Status
 
 Scaffold only. Every API route returns `501 Not implemented` with the phase that builds it, and

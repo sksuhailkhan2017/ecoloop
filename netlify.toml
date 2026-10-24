@@ -8,6 +8,8 @@
   NODE_VERSION = "24"
   # Render backend (Site configuration → Environment variables overrides this).
   NEXT_PUBLIC_API_URL = "https://ecoloop-backend-7c5l.onrender.com"
+  # Send photos to the backend (Gemini); the UI falls back to the local matcher if it fails.
+  NEXT_PUBLIC_USE_BACKEND_SCAN = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

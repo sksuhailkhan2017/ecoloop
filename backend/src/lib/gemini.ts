@@ -7,7 +7,15 @@ import { z } from "zod";
 import { STREAMS, type DisposalRule, type ScanItem, type ScanResult, type Stream } from "../types";
 
 /** Read lazily so a value from .env is always honoured (see src/env.ts). */
-export const geminiModel = () => process.env.GEMINI_MODEL || "gemini-2.5-flash";
+export const geminiModel = () => process.env.GEMINI_MODEL || "gemini-flash-latest";
+/** Tried in order when a model is retired (404), throttled (429) or overloaded (503).
+ *  Free tier = 20 requests/day/model, so a longer chain = more free scans. Enable billing for a real demo. */
+const FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
+
+const isRetryable = (err: unknown) =>
+  /503|UNAVAILABLE|429|RESOURCE_EXHAUSTED|overloaded|high demand|404|NOT_FOUND|no longer available/i.test(
+    err instanceof Error ? err.message : String(err),
+  );
 
 export const SYSTEM_INSTRUCTION = `You are the scanner for EcoLoop, a waste-reduction app for residents of Markham, Ontario.
 The photo may show (A) a single item or product, such as a bottle, can, jacket or
@@ -202,32 +210,65 @@ export async function scan(image: ScanImage, hint?: string, mode: ScanMode = "au
   // Resolve the client before the retry loop: a missing GEMINI_API_KEY is a config problem and must
   // surface as such, not be swallowed by the retry and reported as "couldn't identify that one".
   const ai = gemini();
-  const config = {
+  const baseConfig = {
     systemInstruction: `${SYSTEM_INSTRUCTION}\n\nRULES:\n${JSON.stringify(rules)}`,
     responseMimeType: "application/json",
     responseJsonSchema: responseJsonSchema(),
     temperature: 0.2,
+    maxOutputTokens: 4096,
+    httpOptions: { timeout: 40_000 },
   };
 
   let lastError: unknown;
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: geminiModel(),
-        contents: buildContents(image, mode, hint),
-        config,
-      });
-      const text = response.text;
-      if (!text) throw new Error("Empty response from Gemini");
-      const parsed = scanResultSchema.parse(JSON.parse(text));
-      return reconcile(parsed, rules, parsed.kind === "receipt" ? 25 : 8);
-    } catch (err) {
-      lastError = err;
-      console.warn(`Gemini scan attempt ${attempt} failed:`, err instanceof Error ? err.message : err);
+
+  /** Up to two attempts on one model. Returns null to move on to the next model. */
+  const tryModel = async (model: string): Promise<ScanResult | null> => {
+    // Sorting is lookup-style work: skipping extended "thinking" cuts latency from ~60 s to a few
+    // seconds. Some models reject thinkingConfig with 400 — then we retry the same model without it.
+    let withThinking = true;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      const t0 = Date.now();
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: buildContents(image, mode, hint),
+          config: withThinking ? { ...baseConfig, thinkingConfig: { thinkingBudget: 0 } } : baseConfig,
+        });
+        const text = response.text;
+        if (!text) throw new Error("Empty response from Gemini");
+        const parsed = scanResultSchema.parse(JSON.parse(text));
+        return reconcile(parsed, rules, parsed.kind === "receipt" ? 25 : 8);
+      } catch (err) {
+        lastError = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(`Gemini scan: ${model} attempt ${attempt} failed after ${Date.now() - t0} ms: ${msg.slice(0, 160)}`);
+        if (isRetryable(err)) return null;
+        if (withThinking && /INVALID_ARGUMENT|\b400\b/.test(msg)) {
+          withThinking = false;
+          continue;
+        }
+        // Invalid JSON etc. → one more try on the same model.
+      }
     }
+    return null;
+  };
+
+  const models = [geminiModel(), ...FALLBACK_MODELS.filter((m) => m !== geminiModel())];
+  for (const model of models) {
+    const result = await tryModel(model);
+    if (result) return result;
+  }
+  // Everything throttled/overloaded: short pause, then one last go at the primary model.
+  if (isRetryable(lastError)) {
+    await new Promise((r) => setTimeout(r, 6_000));
+    const result = await tryModel(models[0]);
+    if (result) return result;
   }
 
-  console.error("Gemini scan failed after retry:", lastError);
+  console.error("Gemini scan failed on every model:", lastError instanceof Error ? lastError.message : lastError);
+  if (isRetryable(lastError)) {
+    throw new ScanError("The scanner is busy right now (Gemini quota). Try again in a minute, or type what it is.", 503);
+  }
   throw new ScanError(
     mode === "receipt"
       ? "We couldn't read that receipt. Try a flatter, brighter photo."

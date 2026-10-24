@@ -41,6 +41,8 @@ export type LatLng = { lat: number; lng: number };
 
 export type ScanItem = {
   name: string;
+  productName?: string; // label-level name read by Gemini, e.g. "Dasani 500 mL plastic water bottle"
+  sustainabilityScore?: number; // 0–100, display only
   material: string;
   stream: Stream;
   binLabel: string;
@@ -52,6 +54,7 @@ export type ScanItem = {
 };
 
 export type ScanResult = {
+  kind?: "item" | "receipt"; // what the photo turned out to be
   summary: string;
   items: ScanItem[];
   overallReusable: boolean;

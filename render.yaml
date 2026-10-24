@@ -19,8 +19,11 @@ services:
       - key: CORS_ORIGIN
         # Your Netlify URL(s), comma-separated. "*.netlify.app" allows deploy previews too.
         value: "https://ecoloop.netlify.app,*.netlify.app,http://localhost:3000"
+      - key: DEMO_MODE
+        # true = no Firebase token needed (demo frontend). Set to false once Firebase auth is wired.
+        value: "true"
       - key: GEMINI_MODEL
-        value: gemini-2.5-flash
+        value: gemini-flash-latest
       - key: GEMINI_API_KEY
         sync: false
       - key: FIREBASE_SERVICE_ACCOUNT_BASE64

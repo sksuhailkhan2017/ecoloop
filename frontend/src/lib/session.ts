@@ -6,6 +6,7 @@ export type StoredScan = {
   photoURL?: string;
   hint: string;
   result: ScanResult | null; // null → "help us identify" picker
+  mode?: "item" | "receipt";
   createdAt: string;
 };
 
