@@ -73,7 +73,8 @@ export default function PostDetailPage() {
     }
     setDone({ claimer: pickupFor, ownerDelta: r.ownerDelta, claimerDelta: r.claimerDelta });
     closePickup();
-    toast.points(r.ownerDelta, `${firstName(pickupFor.name)} earned +${r.claimerDelta} too.`);
+    if (r.limited) toast.show({ title: "Handover confirmed — no points", description: r.limited, tone: "info" });
+    else toast.points(r.ownerDelta, `${firstName(pickupFor.name)} earned +${r.claimerDelta} too.`);
   };
 
   return (
@@ -241,7 +242,7 @@ export default function PostDetailPage() {
         {done && (
           <div className="py-2 text-center animate-pop">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl">🎉</div>
-            <h2 className="mt-4 text-2xl font-extrabold text-stone-900">You both earned points!</h2>
+            <h2 className="mt-4 text-2xl font-extrabold text-stone-900">{done.ownerDelta > 0 ? "You both earned points!" : "Handover confirmed"}</h2>
             <p className="mt-2 text-stone-600">
               <span className="font-bold text-emerald-700">+{done.ownerDelta}</span> for you ·{" "}
               <span className="font-bold text-emerald-700">+{done.claimerDelta}</span> for {firstName(done.claimer.name)}

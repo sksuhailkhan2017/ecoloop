@@ -3,6 +3,7 @@ import "./env"; // must stay first: loads .env before any other module reads pro
 import cors from "cors";
 import express from "express";
 
+import { demoRouter } from "./routes/demo";
 import { logsRouter } from "./routes/logs";
 import { meRouter } from "./routes/me";
 import { postsRouter } from "./routes/posts";
@@ -36,7 +37,7 @@ app.use(
   }),
 );
 app.set("trust proxy", 1); // Render sits behind a proxy
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "4mb" })); // demo sync carries downscaled photos as data URLs
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, service: "ecoloop-backend", time: new Date().toISOString() });
@@ -44,6 +45,7 @@ app.get("/api/health", (_req, res) => {
 
 // Section 7 of docs/SPEC.md — one router per resource.
 app.use("/api/scan", scanRouter);
+app.use("/api/demo", demoRouter); // demo-mode shared marketplace (in-memory)
 app.use("/api/logs", logsRouter);
 app.use("/api/posts", postsRouter);
 app.use("/api/me", meRouter);

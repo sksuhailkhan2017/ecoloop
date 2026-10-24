@@ -7,6 +7,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { DEMO_CLAIMS, DEMO_LOGS, DEMO_POSTS, DEMO_REWARDS, DEMO_USERS } from "./demo-data";
+import { SYNC_ENABLED, fetchFeed, pushClaim, pushPickup, pushPost, type RemoteFeed } from "./demo-sync";
 import { avatarColorFor, initialsOf, nowIso, randomCode, slugify, uid } from "./format";
 import { DEFAULT_LOCATION, haversineKm, nearestNeighbourhood } from "./geo";
 import { MARKHAM_DIVERSION_TARGET, MAX_LOG_POINTS_PER_DAY, POINTS, isDiverted, nextStreak, pointsForLog, todayInToronto } from "./points";
@@ -27,6 +28,9 @@ import type {
 } from "./types";
 
 export const STORAGE_KEY = "remarkham.demo.v1";
+/** Anti-collusion (docs: mentor question about friends trading back and forth). */
+const PAIR_COOLDOWN_DAYS = 7;
+const MAX_PICKUP_POINTS_PER_DAY = 3;
 const VERSION = 1;
 
 export type State = {
@@ -160,6 +164,40 @@ function computeStats(state: State, user: User | null): Stats {
   };
 }
 
+/** Merge the shared demo feed into local state. Remote wins on post status; local-only data stays. */
+function mergeRemote(state: State, feed: RemoteFeed): State {
+  let next = state;
+  const users = [...state.users];
+  for (const ru of feed.users) {
+    if (!users.some((u) => u.id === ru.id)) {
+      users.push({ ...ru, points: 0, streakCount: 0, joinedAt: nowIso(), isDemo: false });
+    }
+  }
+  next = { ...next, users };
+
+  const posts = [...next.posts];
+  for (const rp of feed.posts) {
+    const i = posts.findIndex((p) => p.id === rp.id);
+    if (i === -1) {
+      posts.unshift(rp);
+    } else if (rp.status === "picked_up" && posts[i].status !== "picked_up") {
+      posts[i] = { ...posts[i], ...rp };
+      // The claimer's own phone never ran confirmPickup — award the receiver points here, once.
+      const me = next.currentUserId;
+      if (me && rp.claimerId === me && !next.ledger.some((e) => e.reason === "pickup_receiver" && e.refId === rp.id)) {
+        next = award({ ...next, posts }, me, POINTS.pickup_receiver, "pickup_receiver", rp.id);
+      }
+    }
+  }
+  next = { ...next, posts: next.posts === posts ? posts : posts };
+
+  const claims = [...next.claims];
+  for (const rc of feed.claims) {
+    if (!claims.some((c) => c.postId === rc.postId && c.userId === rc.userId)) claims.push(rc);
+  }
+  return { ...next, claims };
+}
+
 // ---- context ----------------------------------------------------------------------------------
 
 export type Store = {
@@ -180,7 +218,7 @@ export type Store = {
     postId: string,
     claimerId: string,
     photoURL: string,
-  ) => { ok: boolean; error?: string; ownerDelta: number; claimerDelta: number };
+  ) => { ok: boolean; error?: string; ownerDelta: number; claimerDelta: number; limited?: string };
   createPost: (input: NewPostInput) => { post: Post; delta: number; streakCount: number; bonus: boolean };
   logItems: (items: ScanItem[], scanId?: string) => { delta: number; streakCount: number; bonus: boolean; count: number; capped?: boolean };
   redeem: (rewardId: string) => { ok: boolean; code?: string; error?: string };
@@ -204,6 +242,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) saveState(state);
   }, [state, hydrated]);
+
+  // Demo sync: poll the shared feed so posts/claims/pickups from other phones show up.
+  useEffect(() => {
+    if (!hydrated || !SYNC_ENABLED) return;
+    let cancelled = false;
+    const tick = async () => {
+      const feed = await fetchFeed();
+      if (cancelled || !feed) return;
+      const merged = mergeRemote(stateRef.current, feed);
+      if (merged !== stateRef.current) {
+        stateRef.current = merged;
+        setState(merged);
+      }
+    };
+    void tick();
+    const id = window.setInterval(() => void tick(), 6_000);
+    const onFocus = () => void tick();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [hydrated]);
 
   /** Apply a synchronous transition and return a value computed from it. */
   const commit = useCallback(<R,>(fn: (s: State) => { state: State; result: R }): R => {
@@ -296,6 +358,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (s.claims.some((c) => c.postId === postId && c.userId === me))
           return { state: s, result: { ok: false, error: "You already asked for this" } };
         const claim: Claim = { postId, userId: me, createdAt: nowIso() };
+        const meUser = s.users.find((u) => u.id === me);
+        if (meUser) void pushClaim(claim, meUser);
         return { state: { ...s, claims: [...s.claims, claim] }, result: { ok: true } };
       }),
     [commit],
@@ -303,7 +367,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const confirmPickup = useCallback<Store["confirmPickup"]>(
     (postId, claimerId, photoURL) =>
-      commit<{ ok: boolean; error?: string; ownerDelta: number; claimerDelta: number }>((s) => {
+      commit<{ ok: boolean; error?: string; ownerDelta: number; claimerDelta: number; limited?: string }>((s) => {
         const me = s.currentUserId;
         const post = s.posts.find((p) => p.id === postId);
         const fail = (error: string) => ({ state: s, result: { ok: false, error, ownerDelta: 0, claimerDelta: 0 } });
@@ -322,12 +386,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : p,
           ),
         };
-        next = award(next, me, POINTS.pickup_giver, "pickup_giver", postId);
-        next = award(next, claimerId, POINTS.pickup_receiver, "pickup_receiver", postId);
-        return {
-          state: next,
-          result: { ok: true, ownerDelta: POINTS.pickup_giver, claimerDelta: POINTS.pickup_receiver },
-        };
+        // Anti-collusion: the same two people earn handover points at most once per 7 days (either
+        // direction), and a giver earns handover points for at most 3 pickups a day. The item still
+        // changes hands; only the points are withheld.
+        const now = Date.now();
+        const samePairRecently = s.posts.some(
+          (p) =>
+            p.id !== postId &&
+            p.status === "picked_up" &&
+            p.pickedUpAt &&
+            now - new Date(p.pickedUpAt).getTime() < PAIR_COOLDOWN_DAYS * 86_400_000 &&
+            ((p.ownerId === me && p.claimerId === claimerId) || (p.ownerId === claimerId && p.claimerId === me)),
+        );
+        const today = todayInToronto();
+        const giverToday = s.ledger.filter(
+          (e) => e.userId === me && e.reason === "pickup_giver" && todayInToronto(new Date(e.createdAt)) === today,
+        ).length;
+        let limited: string | undefined;
+        if (samePairRecently) limited = `You two already traded in the last ${PAIR_COOLDOWN_DAYS} days — no points this time.`;
+        else if (giverToday >= MAX_PICKUP_POINTS_PER_DAY) limited = `Daily limit: points for ${MAX_PICKUP_POINTS_PER_DAY} handovers a day.`;
+
+        const ownerDelta = limited ? 0 : POINTS.pickup_giver;
+        const claimerDelta = limited ? 0 : POINTS.pickup_receiver;
+        if (!limited) {
+          next = award(next, me, POINTS.pickup_giver, "pickup_giver", postId);
+          next = award(next, claimerId, POINTS.pickup_receiver, "pickup_receiver", postId);
+        }
+        const updated = next.posts.find((p) => p.id === postId);
+        if (updated) void pushPickup(updated);
+        return { state: next, result: { ok: true, ownerDelta, claimerDelta, limited } };
       }),
     [commit],
   );
@@ -354,6 +441,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         let next: State = { ...s, posts: [post, ...s.posts] };
         next = award(next, me.id, POINTS.post_created, "post_created", post.id);
         const streak = touchStreak(next, me.id);
+        void pushPost(post, me);
         return {
           state: streak.state,
           result: { post, delta: POINTS.post_created, streakCount: streak.streakCount, bonus: streak.bonus },
