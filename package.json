@@ -2,7 +2,7 @@
   "name": "ecoloop",
   "version": "0.1.0",
   "private": true,
-  "description": "ReMarkham — Instagram for reducing waste in Markham, ON. Monorepo: frontend/ (Next.js), backend/ (Express API), python/ (data tooling).",
+  "description": "EcoLoop — Instagram for reducing waste in Markham, ON. Monorepo: frontend/ (Next.js), backend/ (Express API), python/ (data tooling).",
   "scripts": {
     "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install",
     "dev": "concurrently -k -n frontend,backend -c green,blue \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",

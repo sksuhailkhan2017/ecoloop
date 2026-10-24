@@ -1,4 +1,4 @@
-# ecoloop · ReMarkham
+# EcoLoop
 
 "Instagram for reducing waste" in Markham, Ontario. Scan an item → learn which Markham bin or depot
 it belongs in → log it or give it away on a nearby-first marketplace → earn points → redeem them at

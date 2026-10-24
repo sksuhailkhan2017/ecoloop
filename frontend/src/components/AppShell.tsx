@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
@@ -8,7 +9,6 @@ import {
   FlameIcon,
   GiftIcon,
   HomeIcon,
-  LeafIcon,
   LogOutIcon,
   PlusIcon,
   ScanIcon,
@@ -36,12 +36,10 @@ function isActive(pathname: string, href: string) {
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/feed" className="flex items-center gap-2.5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/30">
-        <LeafIcon size={20} />
-      </span>
+      <Image src="/ecoloop-mark.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0" />
       {!compact && (
         <span className="leading-tight">
-          <span className="block text-base font-extrabold tracking-tight text-stone-900">ReMarkham</span>
+          <span className="block text-base font-extrabold tracking-tight text-stone-900">EcoLoop</span>
           <span className="block text-[11px] font-medium text-stone-500">Markham, Ontario</span>
         </span>
       )}

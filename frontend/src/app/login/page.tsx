@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { ArrowRightIcon, CheckIcon, LeafIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
+import { ArrowRightIcon, CheckIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "@/components/ui/Field";
@@ -73,11 +74,8 @@ export default function LoginPage() {
       <aside className="relative hidden overflow-hidden bg-emerald-700 text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-emerald-500/40 blur-3xl" />
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-teal-400/30 blur-3xl" />
-        <div className="relative flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/30">
-            <LeafIcon size={24} />
-          </span>
-          <span className="text-xl font-extrabold tracking-tight">ReMarkham</span>
+        <div className="relative w-fit rounded-3xl bg-white p-1 shadow-lg shadow-emerald-950/10">
+          <Image src="/ecoloop-logo.png" alt="EcoLoop" width={144} height={144} className="h-36 w-36 rounded-[20px]" />
         </div>
         <div className="relative max-w-md">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tight xl:text-5xl">
@@ -112,10 +110,8 @@ export default function LoginPage() {
       {/* Form panel */}
       <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-8 sm:px-6">
         <div className="mb-6 flex items-center gap-2.5 lg:hidden">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/30">
-            <LeafIcon size={22} />
-          </span>
-          <span className="text-xl font-extrabold tracking-tight text-stone-900">ReMarkham</span>
+          <Image src="/ecoloop-mark.png" alt="" width={40} height={40} className="h-10 w-10" />
+          <span className="text-xl font-extrabold tracking-tight text-stone-900">EcoLoop</span>
         </div>
 
         <div className="w-full max-w-md rounded-3xl border border-stone-200 bg-white p-6 shadow-xl shadow-stone-900/5 sm:p-8 animate-slide-up">
@@ -181,7 +177,7 @@ export default function LoginPage() {
               </div>
               <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-stone-900">Find items near you</h2>
               <p className="mt-1 text-sm text-stone-500">
-                ReMarkham sorts the marketplace by distance. Your browser will ask for permission — we only keep an approximate point, never a history.
+                EcoLoop sorts the marketplace by distance. Your browser will ask for permission — we only keep an approximate point, never a history.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-stone-700">
                 {["See what neighbours are giving away closest to you", "Show how far a pickup is before you ask", "Fall back to Markham Civic Centre if you say no"].map((t) => (

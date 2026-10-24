@@ -1,4 +1,4 @@
-# ReMarkham (ecoloop) — Build Spec & Agent Prompt
+# EcoLoop — Build Spec & Agent Prompt
 
 > **Instructions to the coding agent:** You are building a complete, deployable web app for a 24-hour civic-tech hackathon (GDG Markham, waste-reduction track). Read this whole file first, then build it **phase by phase in the order in Section 10**. Working beats perfect. After each phase, run the app and confirm that phase's acceptance checks before moving on. Do not stop to ask clarifying questions — make a reasonable choice, leave a `// TODO:` comment, and keep going. Mobile-first: everything must look right at 390px width.
 
@@ -8,7 +8,7 @@
 
 ## 1. What this is
 
-**ReMarkham** is "Instagram for reducing waste" in Markham, Ontario.
+**EcoLoop** is "Instagram for reducing waste" in Markham, Ontario.
 
 Three bottom tabs, like Instagram:
 

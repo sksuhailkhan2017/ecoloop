@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "ReMarkham",
-    template: "%s · ReMarkham",
+    default: "EcoLoop",
+    template: "%s · EcoLoop",
   },
   description: "Scan it, sort it, share it — reduce waste in Markham, Ontario.",
-  applicationName: "ReMarkham",
+  applicationName: "EcoLoop",
 };
 
 export const viewport: Viewport = {
