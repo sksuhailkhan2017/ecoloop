@@ -1,6 +1,8 @@
-// Firebase *client* SDK — auth only. All Firestore/Storage writes go through the backend API.
+// Firebase *client* SDK — auth only, initialised lazily. In demo mode (no NEXT_PUBLIC_FIREBASE_*
+// vars, e.g. on Netlify today) nothing is initialised, so importing this module never throws.
+// All Firestore/Storage writes go through the backend API.
 import { getApp, getApps, initializeApp } from "firebase/app";
-import { GoogleAuthProvider, getAuth, signInAnonymously, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, getAuth, signInAnonymously, signInWithPopup, type Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,13 +13,28 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
+export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
 
-const googleProvider = new GoogleAuthProvider();
+let authInstance: Auth | null = null;
 
-export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
-export const signInAsGuest = () => signInAnonymously(auth);
+/** Returns the Auth instance, or null when Firebase isn't configured (demo mode). */
+export function getFirebaseAuth(): Auth | null {
+  if (!isFirebaseConfigured) return null;
+  if (!authInstance) {
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    authInstance = getAuth(app);
+  }
+  return authInstance;
+}
+
+function requireAuth(): Auth {
+  const auth = getFirebaseAuth();
+  if (!auth) throw new Error("Firebase is not configured — set NEXT_PUBLIC_FIREBASE_* in frontend/.env.local");
+  return auth;
+}
+
+export const signInWithGoogle = () => signInWithPopup(requireAuth(), new GoogleAuthProvider());
+export const signInAsGuest = () => signInAnonymously(requireAuth());
 
 export const DEFAULT_LOCATION = {
   lat: Number(process.env.NEXT_PUBLIC_DEFAULT_LAT ?? 43.8561),

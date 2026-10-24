@@ -1,5 +1,5 @@
 // Typed fetch wrapper for the Express backend. Attaches the Firebase ID token on every call.
-import { auth } from "./firebase.client";
+import { getFirebaseAuth } from "./firebase.client";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
@@ -16,7 +16,7 @@ export class ApiError extends Error {
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
 
-  const user = auth.currentUser;
+  const user = getFirebaseAuth()?.currentUser ?? null;
   if (user) headers.set("Authorization", `Bearer ${await user.getIdToken()}`);
 
   const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
