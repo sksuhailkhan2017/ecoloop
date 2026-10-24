@@ -6,6 +6,7 @@ import multer from "multer";
 import { requireAuth, uidOf } from "../lib/auth";
 import { db } from "../lib/firebase.admin";
 import { ScanError, scan, type ScanMode } from "../lib/gemini";
+import { rateLimit } from "../lib/rate-limit";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -15,11 +16,18 @@ export const scanRouter = Router();
 
 // POST /api/scan  — multipart: image (required), hint (optional), mode ("auto" | "item" | "receipt", default "auto")
 // → calls lib/gemini.scan(), saves scans/{id} when Firebase is configured, returns { scanId, result }
-scanRouter.post("/", requireAuth, upload.single("image"), async (req, res, next) => {
+// 12 scans / 10 min per IP: enough for a real user, stops a loop from draining the Gemini quota.
+const scanLimiter = rateLimit({ windowMs: 10 * 60_000, max: 12, name: "scan" });
+
+scanRouter.post("/", requireAuth, scanLimiter, upload.single("image"), async (req, res, next) => {
   try {
     const file = req.file;
     if (!file) {
       res.status(400).json({ error: "Attach a photo in the `image` field." });
+      return;
+    }
+    if (file.size < 2_000) {
+      res.status(400).json({ error: "That photo is too small to read. Try again with a clearer shot." });
       return;
     }
     if (!ALLOWED_MIME.has(file.mimetype)) {

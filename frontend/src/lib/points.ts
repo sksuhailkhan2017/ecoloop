@@ -11,6 +11,8 @@ export const POINTS = {
 } as const;
 
 export const STREAK_BONUS_EVERY = 7;
+/** Anti-farming: points from logging scans are capped per day (logs still count toward stats). */
+export const MAX_LOG_POINTS_PER_DAY = 50;
 export const MARKHAM_DIVERSION_TARGET = 0.8;
 export const TIMEZONE = "America/Toronto";
 

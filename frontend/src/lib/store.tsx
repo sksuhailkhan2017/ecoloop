@@ -9,7 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { DEMO_CLAIMS, DEMO_LOGS, DEMO_POSTS, DEMO_REWARDS, DEMO_USERS } from "./demo-data";
 import { avatarColorFor, initialsOf, nowIso, randomCode, slugify, uid } from "./format";
 import { DEFAULT_LOCATION, haversineKm, nearestNeighbourhood } from "./geo";
-import { MARKHAM_DIVERSION_TARGET, POINTS, isDiverted, nextStreak, pointsForLog } from "./points";
+import { MARKHAM_DIVERSION_TARGET, MAX_LOG_POINTS_PER_DAY, POINTS, isDiverted, nextStreak, pointsForLog, todayInToronto } from "./points";
 import type {
   Category,
   Claim,
@@ -182,7 +182,7 @@ export type Store = {
     photoURL: string,
   ) => { ok: boolean; error?: string; ownerDelta: number; claimerDelta: number };
   createPost: (input: NewPostInput) => { post: Post; delta: number; streakCount: number; bonus: boolean };
-  logItems: (items: ScanItem[], scanId?: string) => { delta: number; streakCount: number; bonus: boolean; count: number };
+  logItems: (items: ScanItem[], scanId?: string) => { delta: number; streakCount: number; bonus: boolean; count: number; capped?: boolean };
   redeem: (rewardId: string) => { ok: boolean; code?: string; error?: string };
   resetDemo: () => void;
 };
@@ -370,6 +370,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         let next = s;
         let delta = 0;
         const logs: LogEntry[] = [];
+        // Daily cap: sum of today's log points already awarded to this user.
+        const today = todayInToronto();
+        const awardedToday = s.ledger
+          .filter((e) => e.userId === me.id && (e.reason === "log_diverted" || e.reason === "log_garbage"))
+          .filter((e) => todayInToronto(new Date(e.createdAt)) === today)
+          .reduce((sum, e) => sum + e.delta, 0);
+        let remaining = Math.max(0, MAX_LOG_POINTS_PER_DAY - awardedToday);
         for (const item of items) {
           const log: LogEntry = {
             id: uid(),
@@ -384,14 +391,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           };
           logs.push(log);
           const p = pointsForLog(item.stream);
-          delta += p.delta;
-          next = award(next, me.id, p.delta, p.reason, log.id);
+          const awardable = Math.min(p.delta, remaining);
+          remaining -= awardable;
+          delta += awardable;
+          if (awardable > 0) next = award(next, me.id, awardable, p.reason, log.id);
         }
         next = { ...next, logs: [...logs.reverse(), ...next.logs] };
         const streak = touchStreak(next, me.id);
         return {
           state: streak.state,
-          result: { delta, streakCount: streak.streakCount, bonus: streak.bonus, count: items.length },
+          result: { delta, streakCount: streak.streakCount, bonus: streak.bonus, count: items.length, capped: remaining === 0 && delta < items.length },
         };
       }),
     [commit],

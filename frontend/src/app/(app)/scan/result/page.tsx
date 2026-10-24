@@ -44,7 +44,12 @@ export default function ScanResultPage() {
   }, []);
 
   const suggestions = useMemo(() => searchRules(query, 8), [query]);
-  const result: ScanResult | null = scan?.result ?? null;
+  // Gemini returns confidence < 0.3 for blurry photos, faces, pets, scenery... Treat those as
+  // unidentified: no bin shown, no points — the user picks from the rules list instead.
+  const MIN_CONFIDENCE = 0.3;
+  const rawResult: ScanResult | null = scan?.result ?? null;
+  const lowConfidence = !!rawResult && rawResult.items.every((i) => i.confidence < MIN_CONFIDENCE);
+  const result: ScanResult | null = rawResult && !lowConfidence ? rawResult : null;
 
   const pick = (item: string) => {
     if (!scan) return;
@@ -59,7 +64,8 @@ export default function ScanResultPage() {
     if (!scan || !result) return;
     const r = logItems(result.items, scan.id);
     setLogged(r);
-    toast.points(r.delta, r.bonus ? `7-day streak bonus! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
+    if (r.delta === 0) toast.show({ title: "Logged (daily points cap reached)", description: "Still counts toward your impact. Points reset tomorrow.", tone: "info" });
+    else toast.points(r.delta, r.bonus ? `7-day streak bonus! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
     clearScan();
   };
 
@@ -129,7 +135,7 @@ export default function ScanResultPage() {
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">{result ? "Identified" : "Needs a hand"}</p>
               <p className="text-lg font-bold leading-snug text-stone-900">
-                {result ? result.summary : "We couldn’t identify this one confidently."}
+                {result ? result.summary : lowConfidence ? "That doesn’t look like a household item we can sort." : "We couldn’t identify this one confidently."}
               </p>
               {scan.hint && <p className="mt-0.5 truncate text-sm text-stone-500">Your hint: “{scan.hint}”</p>}
             </div>
