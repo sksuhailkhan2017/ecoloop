@@ -18,7 +18,7 @@ services:
         value: "10000"
       - key: CORS_ORIGIN
         # Your Netlify URL(s), comma-separated. "*.netlify.app" allows deploy previews too.
-        value: "https://ecoloop.netlify.app,*.netlify.app,http://localhost:3000"
+        value: "https://ecoloopmarkham.netlify.app,*.netlify.app,http://localhost:3000"
       - key: DEMO_MODE
         # true = no Firebase token needed (demo frontend). Set to false once Firebase auth is wired.
         value: "true"
