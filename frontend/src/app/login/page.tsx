@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { ArrowRightIcon, CheckIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon, UserIcon } from "@/components/icons";
@@ -14,14 +15,12 @@ import { errorMessage } from "@/lib/async";
 import { firstName, formatPoints } from "@/lib/format";
 import { DEFAULT_LOCATION, nearestNeighbourhood } from "@/lib/geo";
 import { requestLocation } from "@/lib/geolocation";
-import { useStore } from "@/lib/store";
 
 type Step = "signin" | "location";
 type Busy = "google" | "guest" | "demo" | null;
 
 export default function LoginPage() {
   const session = useSession();
-  const { state } = useStore();
   const router = useRouter();
   const toast = useToast();
   const [step, setStep] = useState<Step>("signin");
@@ -40,7 +39,7 @@ export default function LoginPage() {
     else setStep("location");
   }, [session.status, session.user, router]);
 
-  const demoUsers = state.users.filter((u) => u.isDemo).slice(0, 6);
+  const demoUsers = session.demoUsers;
 
   const run = async (kind: Busy, fn: () => Promise<unknown>, welcome?: string) => {
     setBusy(kind);
@@ -245,7 +244,11 @@ export default function LoginPage() {
                 <p className="mt-5 text-center text-xs leading-relaxed text-stone-400">
                   Guest accounts live on this device only. Sign in with Google to keep your points across phones.
                   <br />
-                  We store your name, an approximate location and your activity in EcoLoop — nothing else.
+                  By continuing you agree to our{" "}
+                  <Link href="/privacy" className="font-medium text-stone-500 underline underline-offset-2 hover:text-stone-700">
+                    privacy notice
+                  </Link>
+                  : we store your name, an approximate location and your EcoLoop activity — nothing else.
                 </p>
               )}
             </>

@@ -3,68 +3,77 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { PageHeader } from "@/components/AppShell";
+import { LiveStatus, PageHeader } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { PostCard } from "@/components/PostCard";
 import { MapPinIcon, PlusIcon, SearchIcon } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/Button";
 import { FilterChip } from "@/components/ui/Chip";
+import { PostCardSkeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
-import { nearestNeighbourhood } from "@/lib/geo";
+import { useSession } from "@/lib/auth";
+import { errorMessage } from "@/lib/async";
+import { useFeed, useUsers } from "@/lib/data/hooks";
+import { DEFAULT_LOCATION, haversineKm, nearestNeighbourhood } from "@/lib/geo";
 import { requestLocation } from "@/lib/geolocation";
-import { useStore } from "@/lib/store";
+import { SAMPLE_POSTS } from "@/lib/sample-posts";
 import { CATEGORIES, CATEGORY_META, type Category } from "@/lib/types";
 
 export default function FeedPage() {
-  const { state, currentUser, userById, distanceTo, setLocation } = useStore();
+  const { user, mode, updateUser } = useSession();
   const toast = useToast();
+  const feed = useFeed();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "all">("all");
   const [showGone, setShowGone] = useState(false);
   const [locating, setLocating] = useState(false);
 
-  const claimCounts = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const c of state.claims) m.set(c.postId, (m.get(c.postId) ?? 0) + 1);
-    return m;
-  }, [state.claims]);
+  const here = user?.location ?? DEFAULT_LOCATION;
+
+  // Firestore mode shows two badged sample listings so a brand-new deployment isn't empty.
+  const posts = useMemo(() => {
+    const live = feed.data ?? [];
+    return mode === "firebase" ? [...live, ...SAMPLE_POSTS] : live;
+  }, [feed.data, mode]);
+
+  const owners = useUsers(posts.map((p) => p.ownerId));
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return state.posts
+    return posts
       .filter((p) => showGone || p.status === "open")
       .filter((p) => category === "all" || p.category === category)
-      .filter(
-        (p) =>
-          !q ||
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.neighbourhood.toLowerCase().includes(q),
-      )
-      .map((post) => ({ post, distanceKm: distanceTo(post.location) }))
+      .filter((p) => !q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.neighbourhood.toLowerCase().includes(q))
+      .map((post) => ({ post, distanceKm: haversineKm(here, post.location) }))
       .sort((a, b) => {
         if (a.post.status !== b.post.status) return a.post.status === "open" ? -1 : 1;
+        if (!!a.post.isSample !== !!b.post.isSample) return a.post.isSample ? 1 : -1; // real items first
         return a.distanceKm - b.distanceKm;
       });
-  }, [state.posts, query, category, showGone, distanceTo]);
+  }, [posts, query, category, showGone, here]);
 
-  const openCount = state.posts.filter((p) => p.status === "open").length;
-  const givenCount = state.posts.filter((p) => p.status === "picked_up").length;
-  const wantedCount = state.claims.length;
+  const real = posts.filter((p) => !p.isSample);
+  const openCount = real.filter((p) => p.status === "open").length;
+  const givenCount = real.filter((p) => p.status === "picked_up").length;
+  const wantedCount = real.reduce((n, p) => n + (p.claimCount ?? 0), 0);
 
   const updateLocation = async () => {
     setLocating(true);
     const r = await requestLocation();
-    setLocating(false);
     if (r.ok) {
-      setLocation(r.loc, true);
-      toast.success("Location updated", `Showing items near ${nearestNeighbourhood(r.loc)}.`);
+      try {
+        await updateUser({ location: r.loc, neighbourhood: nearestNeighbourhood(r.loc), locationSource: "gps" });
+        toast.success("Location updated", `Showing items near ${nearestNeighbourhood(r.loc)}.`);
+      } catch (err) {
+        toast.error("Couldn't save your location", errorMessage(err));
+      }
     } else {
       toast.error(
         r.reason === "denied" ? "Location is blocked" : "Couldn't get your location",
         r.reason === "denied" ? "Allow location for this site in your browser settings." : "Still using your last known spot.",
       );
     }
+    setLocating(false);
   };
 
   return (
@@ -74,15 +83,10 @@ export default function FeedPage() {
         subtitle={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <MapPinIcon size={16} className="text-emerald-600" />
-            <span className="font-medium text-stone-700">{currentUser?.neighbourhood ?? "Markham"}</span>
+            <span className="font-medium text-stone-700">{user?.neighbourhood ?? "Markham"}</span>
             <span aria-hidden="true">·</span>
             <span>Markham, ON</span>
-            <button
-              type="button"
-              onClick={updateLocation}
-              disabled={locating}
-              className="ml-1 font-semibold text-emerald-700 hover:underline disabled:opacity-60"
-            >
+            <button type="button" onClick={updateLocation} disabled={locating} className="ml-1 font-semibold text-emerald-700 hover:underline disabled:opacity-60">
               {locating ? "Locating…" : "Update location"}
             </button>
           </span>
@@ -105,7 +109,7 @@ export default function FeedPage() {
               {s.emoji}
             </span>
             <span className="leading-tight">
-              <span className="block text-lg font-extrabold text-stone-900">{s.value}</span>
+              <span className="block text-lg font-extrabold text-stone-900">{feed.loading ? "–" : s.value}</span>
               <span className="block text-[11px] font-medium text-stone-500 sm:text-xs">{s.label}</span>
             </span>
           </div>
@@ -138,15 +142,19 @@ export default function FeedPage() {
         </div>
       </div>
 
-      {rows.length === 0 ? (
+      <LiveStatus error={feed.error} slow={feed.slow} onRetry={feed.retry} />
+
+      {feed.loading && !feed.error ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label="Loading nearby items">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : rows.length === 0 ? (
         <EmptyState
           emoji="🌱"
           title={query || category !== "all" ? "Nothing matches" : "Nothing nearby yet"}
-          description={
-            query || category !== "all"
-              ? "Try a different search or category."
-              : "Scan something to get started, or be the first to give an item away."
-          }
+          description={query || category !== "all" ? "Try a different search or category." : "Scan something to get started, or be the first to give an item away."}
           action={
             <ButtonLink href="/scan" variant="primary">
               Scan an item
@@ -159,10 +167,10 @@ export default function FeedPage() {
             <PostCard
               key={post.id}
               post={post}
-              owner={userById(post.ownerId)}
+              owner={owners.get(post.ownerId)}
               distanceKm={distanceKm}
-              claimCount={claimCounts.get(post.id) ?? 0}
-              mine={post.ownerId === currentUser?.id}
+              claimCount={post.claimCount ?? 0}
+              mine={post.ownerId === user?.id}
             />
           ))}
         </div>

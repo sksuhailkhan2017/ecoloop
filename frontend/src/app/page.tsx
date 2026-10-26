@@ -2,9 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { ArrowRightIcon, GiftIcon, HeartIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
+import { errorMessage } from "@/lib/async";
 import { useSession } from "@/lib/auth";
 
 const STEPS = [
@@ -37,7 +41,26 @@ const FEATURES = [
 
 export default function LandingPage() {
   const session = useSession();
+  const router = useRouter();
+  const toast = useToast();
+  const [trying, setTrying] = useState(false);
   const signedIn = session.status === "signed-in" && !!session.user;
+
+  // One tap in: a guest account, no email asked. Google can be linked later from Profile.
+  const tryIt = async () => {
+    if (signedIn) {
+      router.push("/feed");
+      return;
+    }
+    setTrying(true);
+    try {
+      await session.signInAsGuest();
+      router.push("/login"); // shows the one-time location step, then the feed
+    } catch (err) {
+      setTrying(false);
+      toast.error("Couldn't start a guest session", errorMessage(err));
+    }
+  };
 
   return (
     <div className="min-h-dvh bg-stone-50 text-stone-900">
@@ -79,14 +102,20 @@ export default function LandingPage() {
               EcoLoop tells you which Markham bin or depot anything belongs in, helps you give what still works to a neighbour, and rewards you at local shops.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={signedIn ? "/scan" : "/login"} size="xl" rightIcon={<ArrowRightIcon />}>
-                {signedIn ? "Scan an item" : "Get started — it's free"}
-              </ButtonLink>
+              {signedIn ? (
+                <ButtonLink href="/scan" size="xl" rightIcon={<ArrowRightIcon />}>
+                  Scan an item
+                </ButtonLink>
+              ) : (
+                <Button size="xl" onClick={() => void tryIt()} loading={trying} rightIcon={<ArrowRightIcon />}>
+                  Try it — no sign-up
+                </Button>
+              )}
               <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" variant="outline">
-                Browse free items nearby
+                {signedIn ? "Browse free items nearby" : "Sign in with Google"}
               </ButtonLink>
             </div>
-            <p className="mt-4 text-sm text-stone-500">No account or password needed. Works on any phone browser.</p>
+            <p className="mt-4 text-sm text-stone-500">No email or password needed to start. Works on any phone browser.</p>
           </div>
 
           <div className="relative mx-auto w-full max-w-sm animate-pop lg:max-w-md">
@@ -183,16 +212,25 @@ export default function LandingPage() {
       <section className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 lg:py-24">
         <Image src="/ecoloop-logo.png" alt="EcoLoop" width={96} height={96} className="mx-auto h-24 w-24 rounded-[20px] shadow-lg" />
         <h2 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to sort smarter?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-stone-600">Pick a demo neighbour or type your name, allow location, and scan your first item in under a minute.</p>
+        <p className="mx-auto mt-3 max-w-xl text-stone-600">Try it as a guest in one tap, allow location, and scan your first item in under a minute.</p>
         <div className="mt-8 flex justify-center">
-          <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" rightIcon={<ArrowRightIcon />}>
-            {signedIn ? "Open EcoLoop" : "Get started"}
-          </ButtonLink>
+          {signedIn ? (
+            <ButtonLink href="/feed" size="xl" rightIcon={<ArrowRightIcon />}>
+              Open EcoLoop
+            </ButtonLink>
+          ) : (
+            <Button size="xl" onClick={() => void tryIt()} loading={trying} rightIcon={<ArrowRightIcon />}>
+              Try it — no sign-up
+            </Button>
+          )}
         </div>
       </section>
 
       <footer className="border-t border-stone-200 py-8 text-center text-sm text-stone-500">
-        EcoLoop · GDG Markham civic-tech hackathon · Sorting rules drafted from City of Markham guidance — verify at markham.ca
+        EcoLoop · GDG Markham civic-tech hackathon · Sorting rules drafted from City of Markham guidance — verify at markham.ca ·{" "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-stone-700">
+          Privacy
+        </Link>
       </footer>
     </div>
   );

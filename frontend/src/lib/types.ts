@@ -114,11 +114,17 @@ export type Post = {
   location: LatLng;
   neighbourhood: string;
   status: PostStatus;
+  /** Denormalised number of claims (non-owners may bump it by exactly 1 — see firestore.rules). */
+  claimCount?: number;
   claimerId?: string;
   pickupPhotoURL?: string;
   pickedUpAt?: string;
+  /** Set by the owner on pickup: false when anti-collusion withheld points for this handover. */
+  pointsAwarded?: boolean;
   fromScanId?: string;
   createdAt: string;
+  /** Static "Sample listing" shown to first visitors (never stored in Firestore). */
+  isSample?: boolean;
 };
 
 export type Claim = {

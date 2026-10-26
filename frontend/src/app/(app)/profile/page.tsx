@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import { PageHeader } from "@/components/AppShell";
+import { LiveStatus, PageHeader } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { PostCard } from "@/components/PostCard";
 import { StatCard } from "@/components/StatCard";
@@ -13,48 +13,55 @@ import { FlameIcon, GiftIcon, LogOutIcon, MapPinIcon, RefreshIcon, ScanIcon } fr
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Field";
-import { useSession } from "@/lib/auth";
+import { PostCardSkeleton, Skeleton } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
+import { SignInCancelled, useSession } from "@/lib/auth";
+import { errorMessage } from "@/lib/async";
+import { useStats } from "@/lib/data/hooks";
 import { formatKg, formatMonthYear, formatPoints, timeAgo } from "@/lib/format";
+import { DEFAULT_LOCATION, haversineKm } from "@/lib/geo";
 import { pointsForLog } from "@/lib/points";
-import { useStore } from "@/lib/store";
 
 type Tab = "listings" | "log";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const toast = useToast();
   const session = useSession();
-  const { state, currentUser, stats, userById, distanceTo, resetDemo } = useStore();
+  const user = session.user;
+  const { stats, logs, myPosts } = useStats(user);
   const [tab, setTab] = useState<Tab>("listings");
   const [signingOut, setSigningOut] = useState(false);
+  const [linking, setLinking] = useState(false);
+
+  if (!user) return null;
+  const ratePct = Math.round(stats.diversionRate * 100);
+  const targetPct = Math.round(stats.target * 100);
+  const here = user.location ?? DEFAULT_LOCATION;
 
   const onSignOut = async () => {
     setSigningOut(true);
     try {
       await session.signOut();
       router.replace("/login");
-    } catch {
+    } catch (err) {
       setSigningOut(false);
+      toast.error("Couldn't sign out", errorMessage(err));
     }
   };
 
-  const myPosts = useMemo(
-    () => (currentUser ? state.posts.filter((p) => p.ownerId === currentUser.id) : []),
-    [state.posts, currentUser],
-  );
-  const myLogs = useMemo(
-    () => (currentUser ? state.logs.filter((l) => l.userId === currentUser.id).slice(0, 50) : []),
-    [state.logs, currentUser],
-  );
-  const claimCounts = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const c of state.claims) m.set(c.postId, (m.get(c.postId) ?? 0) + 1);
-    return m;
-  }, [state.claims]);
-
-  if (!currentUser) return null;
-  const user = currentUser;
-  const ratePct = Math.round(stats.diversionRate * 100);
-  const targetPct = Math.round(stats.target * 100);
+  const onLink = async () => {
+    setLinking(true);
+    try {
+      const r = await session.linkWithGoogle();
+      if (r === "linked") toast.success("Account saved", "Your points and listings now follow your Google account.");
+      else toast.show({ title: "Signed into your existing account", description: "That Google account already had an EcoLoop profile, so we switched to it.", tone: "info" });
+    } catch (err) {
+      if (!(err instanceof SignInCancelled)) toast.error("Couldn't link Google", errorMessage(err));
+    } finally {
+      setLinking(false);
+    }
+  };
 
   return (
     <>
@@ -87,11 +94,6 @@ export default function ProfilePage() {
               <span>Member since {formatMonthYear(user.joinedAt)}</span>
             </p>
             {user.bio && <p className="mt-2 max-w-md text-sm text-emerald-50">{user.bio}</p>}
-            {user.isGuest && (
-              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-emerald-50 ring-1 ring-white/20">
-                Guest account · lives on this device
-              </p>
-            )}
           </div>
           <div className="flex gap-3 sm:flex-col sm:items-end">
             <div className="rounded-2xl bg-white/15 px-4 py-2.5 ring-1 ring-white/20 backdrop-blur">
@@ -109,6 +111,18 @@ export default function ProfilePage() {
         </div>
       </section>
 
+      {user.isGuest && session.mode === "firebase" && (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center">
+          <div className="flex-1 text-sm text-amber-900">
+            <p className="font-semibold">You&apos;re browsing as a guest.</p>
+            <p>Your points and listings live on this device only. Link a Google account to keep them anywhere — nothing is lost.</p>
+          </div>
+          <Button onClick={() => void onLink()} loading={linking}>
+            Sign in with Google
+          </Button>
+        </div>
+      )}
+
       <div className="mt-4 grid grid-cols-2 gap-2 md:hidden">
         <ButtonLink href="/rewards" leftIcon={<GiftIcon />}>
           Redeem points
@@ -124,24 +138,33 @@ export default function ProfilePage() {
           <h2 className="text-lg font-bold text-stone-900">Your impact</h2>
           <p className="text-xs text-stone-400">Estimated — based on your logged items</p>
         </div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Items diverted" value={stats.itemsDiverted} sub={`of ${stats.itemsLogged} logged`} icon={<span aria-hidden="true">♻️</span>} />
-          <StatCard label="Kept out of landfill" value={formatKg(stats.kgDiverted)} sub="estimated weight" icon={<span aria-hidden="true">⚖️</span>} />
-          <StatCard
-            label="Diversion rate"
-            value={`${ratePct}%`}
-            sub={
-              stats.itemsLogged === 0
-                ? `Markham's target is ${targetPct}%`
-                : ratePct >= targetPct
-                  ? `Above Markham's ${targetPct}% target`
-                  : `${targetPct - ratePct} pts below Markham's ${targetPct}% target`
-            }
-            progress={{ value: stats.diversionRate, target: stats.target }}
-            accent={ratePct >= targetPct && stats.itemsLogged > 0}
-          />
-          <StatCard label="Given away" value={stats.itemsGiven} sub={`${stats.itemsReceived} received`} icon={<span aria-hidden="true">🤝</span>} />
-        </div>
+        <LiveStatus error={logs.error} slow={logs.slow} onRetry={logs.retry} />
+        {logs.loading ? (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-busy="true">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-3xl" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <StatCard label="Items diverted" value={stats.itemsDiverted} sub={`of ${stats.itemsLogged} logged`} icon={<span aria-hidden="true">♻️</span>} />
+            <StatCard label="Kept out of landfill" value={formatKg(stats.kgDiverted)} sub="estimated weight" icon={<span aria-hidden="true">⚖️</span>} />
+            <StatCard
+              label="Diversion rate"
+              value={`${ratePct}%`}
+              sub={
+                stats.itemsLogged === 0
+                  ? `Markham's target is ${targetPct}%`
+                  : ratePct >= targetPct
+                    ? `Above Markham's ${targetPct}% target`
+                    : `${targetPct - ratePct} pts below Markham's ${targetPct}% target`
+              }
+              progress={{ value: stats.diversionRate, target: stats.target }}
+              accent={ratePct >= targetPct && stats.itemsLogged > 0}
+            />
+            <StatCard label="Given away" value={stats.itemsGiven} sub={`${stats.itemsReceived} received`} icon={<span aria-hidden="true">🤝</span>} />
+          </div>
+        )}
 
         <div className="mt-3 rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
           <h3 className="font-bold text-stone-900">Where your items went</h3>
@@ -164,38 +187,38 @@ export default function ProfilePage() {
             value={tab}
             onChange={setTab}
             options={[
-              { value: "listings", label: `My listings (${myPosts.length})` },
-              { value: "log", label: `My log (${myLogs.length})` },
+              { value: "listings", label: `My listings (${myPosts.data?.length ?? 0})` },
+              { value: "log", label: `My log (${logs.data?.length ?? 0})` },
             ]}
           />
         </div>
 
         {tab === "listings" ? (
-          myPosts.length === 0 ? (
-            <EmptyState
-              emoji="📦"
-              title="No listings yet"
-              description="Give something away and it'll show up here."
-              action={<ButtonLink href="/posts/new">Give something away</ButtonLink>}
-            />
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-              {myPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  owner={userById(post.ownerId)}
-                  distanceKm={distanceTo(post.location)}
-                  claimCount={claimCounts.get(post.id) ?? 0}
-                />
-              ))}
-            </div>
-          )
-        ) : myLogs.length === 0 ? (
+          <>
+            <LiveStatus error={myPosts.error} slow={myPosts.slow} onRetry={myPosts.retry} />
+            {myPosts.loading ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4" aria-busy="true">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <PostCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : (myPosts.data ?? []).length === 0 ? (
+              <EmptyState emoji="📦" title="No listings yet" description="Give something away and it'll show up here." action={<ButtonLink href="/posts/new">Give something away</ButtonLink>} />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+                {(myPosts.data ?? []).map((post) => (
+                  <PostCard key={post.id} post={post} owner={user} distanceKm={haversineKm(here, post.location)} claimCount={post.claimCount ?? 0} />
+                ))}
+              </div>
+            )}
+          </>
+        ) : logs.loading ? (
+          <Skeleton className="h-40 w-full rounded-3xl" />
+        ) : (logs.data ?? []).length === 0 ? (
           <EmptyState emoji="📷" title="Nothing logged yet" description="Scan an item and tap “Log it” to start tracking." action={<ButtonLink href="/scan">Scan an item</ButtonLink>} />
         ) : (
           <ul className="divide-y divide-stone-100 overflow-hidden rounded-3xl border border-stone-200 bg-white">
-            {myLogs.map((l) => (
+            {(logs.data ?? []).slice(0, 50).map((l) => (
               <li key={l.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-stone-900">{l.itemName}</p>
@@ -220,7 +243,7 @@ export default function ProfilePage() {
             type="button"
             onClick={() => {
               if (window.confirm("Reset all demo data in this browser? Your posts, logs and points go back to the seed.")) {
-                resetDemo();
+                session.resetDemo();
                 router.replace("/login");
               }
             }}

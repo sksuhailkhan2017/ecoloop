@@ -3,23 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import {
-  FlameIcon,
-  GiftIcon,
-  HomeIcon,
-  LogOutIcon,
-  PlusIcon,
-  ScanIcon,
-  UserIcon,
-} from "@/components/icons";
+import { FlameIcon, GiftIcon, HomeIcon, LogOutIcon, PlusIcon, ScanIcon, UserIcon } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { PageSkeleton } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
 import { useSession } from "@/lib/auth";
+import { data } from "@/lib/data";
+import { useReceivedPosts } from "@/lib/data/hooks";
 import { formatPoints } from "@/lib/format";
-import { useStore } from "@/lib/store";
+import { POINTS } from "@/lib/points";
 import type { User } from "@/lib/types";
 
 const NAV = [
@@ -102,7 +97,7 @@ function Sidebar({ user, pathname, onLogout }: { user: User; pathname: string; o
           <Avatar user={user} size="md" />
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block truncate text-sm font-bold text-stone-900">{user.name}</span>
-            <span className="block truncate text-xs text-stone-500">{user.neighbourhood}</span>
+            <span className="block truncate text-xs text-stone-500">{user.isGuest ? "Guest · " : ""}{user.neighbourhood}</span>
           </span>
         </Link>
         <div className="mt-2 flex items-center justify-between gap-2 px-2">
@@ -137,10 +132,7 @@ function MobileTopBar({ user }: { user: User }) {
 function MobileTabBar({ pathname }: { pathname: string }) {
   const tabs = [NAV[0], NAV[1], NAV[2]];
   return (
-    <nav
-      aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur safe-bottom md:hidden"
-    >
+    <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur safe-bottom md:hidden">
       <ul className="mx-auto grid max-w-md grid-cols-3">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
@@ -150,9 +142,7 @@ function MobileTabBar({ pathname }: { pathname: string }) {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${
-                  active ? "text-emerald-700" : "text-stone-500"
-                }`}
+                className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? "text-emerald-700" : "text-stone-500"}`}
               >
                 {isScan ? (
                   <span
@@ -175,21 +165,40 @@ function MobileTabBar({ pathname }: { pathname: string }) {
   );
 }
 
+/**
+ * Receiver side of a handover. The owner's device can only write the owner's points (rules), so
+ * when one of my claimed posts flips to picked_up with points, credit myself once (idempotent).
+ */
+function ReceiverCredit({ user }: { user: User }) {
+  const toast = useToast();
+  const received = useReceivedPosts(user.id);
+  const attempted = useRef(new Set<string>());
+  useEffect(() => {
+    for (const post of received.data ?? []) {
+      if (!post.pointsAwarded || attempted.current.has(post.id)) continue;
+      attempted.current.add(post.id);
+      data
+        .creditReceivedPickup(user, post)
+        .then((credited) => {
+          if (credited) toast.points(POINTS.pickup_receiver, `Pickup of “${post.title}” confirmed. Thanks for reusing!`);
+        })
+        .catch((err) => console.warn("receiver credit failed:", err));
+    }
+  }, [received.data, user, toast]);
+  return null;
+}
+
 /** Auth guard for the (app) route group: skeleton while the session loads, /login when signed out. */
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
-  const store = useStore();
   const router = useRouter();
   const pathname = usePathname();
   const [signingOut, setSigningOut] = useState(false);
+  const user = session.user;
 
   useEffect(() => {
     if (session.status === "signed-out") router.replace("/login");
   }, [session.status, router]);
-
-  // Phase 1 bridge: points/streak are still awarded locally, so prefer the store's mirror of the
-  // profile for display. Falls back to the Firestore profile until the mirror catches up.
-  const user = store.currentUser ?? session.user;
 
   const onLogout = async () => {
     setSigningOut(true);
@@ -232,6 +241,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-stone-50">
+      <ReceiverCredit user={user} />
       <Sidebar user={user} pathname={pathname} onLogout={() => void onLogout()} />
       <MobileTopBar user={user} />
       <main className="md:pl-64">
@@ -267,6 +277,24 @@ export function PageHeader({
         </div>
         {action}
       </div>
+    </div>
+  );
+}
+
+/** Shared "taking longer than usual" / error strip for live lists. */
+export function LiveStatus({ error, slow, onRetry }: { error: string | null; slow: boolean; onRetry: () => void }) {
+  if (!error && !slow) return null;
+  return (
+    <div
+      role={error ? "alert" : "status"}
+      className={`mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-sm ${
+        error ? "border-rose-200 bg-rose-50 text-rose-800" : "border-amber-200 bg-amber-50 text-amber-900"
+      }`}
+    >
+      <span>{error ?? "Taking longer than usual… check your connection."}</span>
+      <Button size="sm" variant={error ? "danger" : "outline"} onClick={onRetry}>
+        Retry
+      </Button>
     </div>
   );
 }

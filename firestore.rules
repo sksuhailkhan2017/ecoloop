@@ -1,9 +1,14 @@
 rules_version = '2';
 
-// EcoLoop Firestore rules. Deploy with:  npx firebase-tools deploy --only firestore:rules
-// (run from the repo root; `npx firebase-tools login` once first). See README → Deploy.
+// EcoLoop Firestore rules. Deploy from the repo root:
+//   npx firebase-tools login            (once)
+//   npx firebase-tools deploy --only firestore
+// (deploys both these rules and firestore.indexes.json). See README → Deploy.
 //
-// Phase 1: users only. Posts, claims, logs, ledger and redemptions are added in Phase 2 and 5.
+// Points are computed on the client (hackathon scope). The rules bound what a client can write —
+// own documents only, deltas that match the reason, receiver credit only for a real handover —
+// but a determined user could still inflate their own balance. A Cloud Function is the
+// production path; see README → Known limits.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -15,22 +20,115 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isStr(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function post(id) {
+      return get(/databases/$(database)/documents/posts/$(id)).data;
+    }
+
+    // Point deltas allowed per ledger reason (lib/points.ts). Log points may be reduced by the daily cap.
+    function validDelta(reason, delta) {
+      return (reason == 'log_diverted' && delta >= 0 && delta <= 5)
+        || (reason == 'log_garbage' && delta >= 0 && delta <= 1)
+        || (reason == 'post_created' && delta == 5)
+        || (reason == 'pickup_giver' && delta == 25)
+        || (reason == 'pickup_receiver' && delta == 15)
+        || (reason == 'streak_7' && delta == 20)
+        || (reason == 'redeem' && delta < 0);
+    }
+
     // users/{uid} — public profile + points. Anyone signed in can read (names and avatars show on
     // posts); only the owner writes. New docs must start at zero points / zero streak.
     match /users/{uid} {
       allow read: if signedIn();
       allow create: if isSelf(uid)
-        && request.resource.data.points == 0
-        && request.resource.data.streakCount == 0
-        && request.resource.data.name is string
-        && request.resource.data.name.size() <= 80;
-      allow update: if isSelf(uid);
+        && incoming().points == 0
+        && incoming().streakCount == 0
+        && isStr(incoming().name, 80);
+      allow update: if isSelf(uid) && isStr(incoming().name, 80);
       allow delete: if false;
     }
 
-    // Everything else is closed until its phase adds a rule.
-    match /{document=**} {
-      allow read, write: if false;
+    // posts/{postId} — marketplace listings.
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if isSelf(incoming().ownerId)
+        && incoming().status == 'open'
+        && incoming().claimCount == 0
+        && isStr(incoming().title, 80)
+        && isStr(incoming().description, 600)
+        && incoming().category in ['furniture', 'clothing', 'electronics', 'kitchen', 'kids', 'books', 'other']
+        && incoming().condition in ['like_new', 'good', 'fair']
+        && isStr(incoming().photoURL, 2048)
+        && incoming().createdAt is string;
+      // Owner may update anything except ownerId/createdAt (claim, pickup, photo).
+      // Anyone else may only bump claimCount by exactly 1 while the post is open (the "I want this" tap).
+      allow update: if signedIn()
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && (
+          request.auth.uid == existing().ownerId
+          || (
+            existing().status == 'open'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['claimCount'])
+            && incoming().claimCount == existing().claimCount + 1
+          )
+        );
+      allow delete: if false;
+
+      // posts/{postId}/claims/{uid} — "I want this". Readable by the claimer and the post owner.
+      match /claims/{uid} {
+        allow read: if isSelf(uid) || (signedIn() && request.auth.uid == post(postId).ownerId);
+        allow create: if isSelf(uid)
+          && incoming().userId == uid
+          && post(postId).status == 'open'
+          && post(postId).ownerId != uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // logs/{logId} — items the user logged as disposed.
+    // `resource == null` lets a client `get` a doc that does not exist yet (returns nothing).
+    match /logs/{logId} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId) && isStr(incoming().itemName, 120);
+      allow update, delete: if false;
+    }
+
+    // redemptions/{id} — reward codes.
+    match /redemptions/{id} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId) && isStr(incoming().code, 12);
+      allow update, delete: if false;
+    }
+
+    // ledger/{entryId} — every point change. The receiver credit is special: its id is fixed to
+    // pickup_receiver_<postId>, and it is only allowed when that post was handed to the caller
+    // with points (so it can be written once, by the right person, after a real handover).
+    match /ledger/{entryId} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId)
+        && validDelta(incoming().reason, incoming().delta)
+        && (
+          incoming().reason != 'pickup_receiver'
+          || (
+            entryId == 'pickup_receiver_' + incoming().refId
+            && post(incoming().refId).claimerId == request.auth.uid
+            && post(incoming().refId).status == 'picked_up'
+            && post(incoming().refId).pointsAwarded == true
+          )
+        );
+      allow update, delete: if false;
     }
   }
 }

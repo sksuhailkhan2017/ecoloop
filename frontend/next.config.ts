@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" }, // demo listing photos
       { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "storage.googleapis.com" }, // Firebase Storage public URLs
+      { protocol: "https", hostname: "res.cloudinary.com" }, // listing + handover photos (unsigned uploads)
       { protocol: "https", hostname: "lh3.googleusercontent.com" }, // Google account avatars
     ],
   },

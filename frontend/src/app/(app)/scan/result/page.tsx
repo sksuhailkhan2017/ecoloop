@@ -14,7 +14,9 @@ import { useToast } from "@/components/ui/Toast";
 import { pointsForLog } from "@/lib/points";
 import { buildScanResult, searchRules } from "@/lib/scan-mock";
 import { clearScan, getScan, setPrefill, setScan, type StoredScan } from "@/lib/session";
-import { useStore } from "@/lib/store";
+import { useSession } from "@/lib/auth";
+import { errorMessage } from "@/lib/async";
+import { data } from "@/lib/data";
 import type { Category, ScanItem, ScanResult } from "@/lib/types";
 
 function inferCategory(item: ScanItem): Category {
@@ -31,7 +33,8 @@ function inferCategory(item: ScanItem): Category {
 export default function ScanResultPage() {
   const router = useRouter();
   const toast = useToast();
-  const { logItems } = useStore();
+  const { user } = useSession();
+  const [logging, setLogging] = useState(false);
 
   const [scan, setScanState] = useState<StoredScan | null | undefined>(undefined);
   const [query, setQuery] = useState("");
@@ -60,13 +63,20 @@ export default function ScanResultPage() {
     setScanState(next);
   };
 
-  const onLog = () => {
-    if (!scan || !result) return;
-    const r = logItems(result.items, scan.id);
-    setLogged(r);
-    if (r.delta === 0) toast.show({ title: "Logged (daily points cap reached)", description: "Still counts toward your impact. Points reset tomorrow.", tone: "info" });
-    else toast.points(r.delta, r.bonus ? `7-day streak bonus! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
-    clearScan();
+  const onLog = async () => {
+    if (!scan || !result || !user || logging) return;
+    setLogging(true);
+    try {
+      const r = await data.logItems(user, result.items, scan.id);
+      setLogged(r);
+      if (r.delta === 0) toast.show({ title: "Logged (daily points cap reached)", description: "Still counts toward your impact. Points reset tomorrow.", tone: "info" });
+      else toast.points(r.delta, r.bonus ? `7-day streak bonus! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
+      clearScan();
+    } catch (err) {
+      toast.error("Couldn't log it", errorMessage(err));
+    } finally {
+      setLogging(false);
+    }
   };
 
   const onPost = () => {
@@ -207,13 +217,13 @@ export default function ScanResultPage() {
                     <Button size="lg" fullWidth onClick={onPost} leftIcon={<GiftIcon />}>
                       Post to Marketplace
                     </Button>
-                    <Button size="lg" fullWidth variant="secondary" onClick={onLog} leftIcon={<CheckIcon />}>
+                    <Button size="lg" fullWidth variant="secondary" onClick={() => void onLog()} loading={logging} leftIcon={<CheckIcon />}>
                       Log it — I&apos;m disposing of this
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button size="lg" fullWidth onClick={onLog} leftIcon={<CheckIcon />}>
+                    <Button size="lg" fullWidth onClick={() => void onLog()} loading={logging} leftIcon={<CheckIcon />}>
                       Log it — I&apos;m disposing of this
                     </Button>
                     <Button size="lg" fullWidth variant="outline" onClick={onPost} leftIcon={<GiftIcon />}>

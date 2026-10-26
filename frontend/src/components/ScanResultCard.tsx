@@ -5,7 +5,7 @@ import { StreamPill } from "@/components/StreamPill";
 import { Chip } from "@/components/ui/Chip";
 import { DEFAULT_LOCATION } from "@/lib/geo";
 import { nearestDropOffUrl } from "@/lib/maps";
-import { useStore } from "@/lib/store";
+import { useSession } from "@/lib/auth";
 import type { ScanItem } from "@/lib/types";
 
 function scoreTone(score: number): "emerald" | "amber" | "rose" {
@@ -22,7 +22,7 @@ function confidenceLabel(c: number): { text: string; tone: "emerald" | "amber" |
 
 export function ScanResultCard({ item, index }: { item: ScanItem; index?: number }) {
   const conf = confidenceLabel(item.confidence);
-  const { currentUser } = useStore();
+  const { user: currentUser } = useSession();
   const dropOffUrl = nearestDropOffUrl(item.stream, currentUser?.location ?? DEFAULT_LOCATION);
 
   return (
