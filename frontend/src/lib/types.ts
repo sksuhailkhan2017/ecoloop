@@ -92,9 +92,16 @@ export type User = {
   streakCount: number;
   lastActiveDate?: string; // YYYY-MM-DD America/Toronto
   location: LatLng;
+  /** How `location` was obtained. Unset = never asked (login shows the location step). */
+  locationSource?: LocationSource;
   joinedAt: string;
+  /** Anonymous Firebase account ("Continue as guest"). */
+  isGuest?: boolean;
+  /** Seeded demo profile (demo mode only, never in Firestore). */
   isDemo?: boolean;
 };
+
+export type LocationSource = "gps" | "picked" | "default";
 
 export type Post = {
   id: string;

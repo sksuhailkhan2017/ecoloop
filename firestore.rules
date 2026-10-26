@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// EcoLoop Firestore rules. Deploy with:  npx firebase-tools deploy --only firestore:rules
+// (run from the repo root; `npx firebase-tools login` once first). See README → Deploy.
+//
+// Phase 1: users only. Posts, claims, logs, ledger and redemptions are added in Phase 2 and 5.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // users/{uid} — public profile + points. Anyone signed in can read (names and avatars show on
+    // posts); only the owner writes. New docs must start at zero points / zero streak.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid)
+        && request.resource.data.points == 0
+        && request.resource.data.streakCount == 0
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 80;
+      allow update: if isSelf(uid);
+      allow delete: if false;
+    }
+
+    // Everything else is closed until its phase adds a rule.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

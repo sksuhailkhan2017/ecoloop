@@ -212,6 +212,10 @@ export type Store = {
 
   login: (opts: { userId?: string; name?: string }) => User;
   logout: () => void;
+  /** Firebase mode bridge: mirror the Firestore profile into local state and make it current. */
+  adoptUser: (user: User) => void;
+  /** Patch the signed-in user (demo mode persistence). */
+  patchUser: (patch: Partial<Omit<User, "id">>) => void;
   setLocation: (loc: LatLng, granted: boolean) => void;
   claimPost: (postId: string) => { ok: boolean; error?: string };
   confirmPickup: (
@@ -327,8 +331,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    commit((s) => ({ state: { ...s, currentUserId: null }, result: undefined }));
+    commit((s) => ({ state: s.currentUserId === null ? s : { ...s, currentUserId: null }, result: undefined }));
   }, [commit]);
+
+  const adoptUser = useCallback<Store["adoptUser"]>(
+    (user) => {
+      commit((s) => {
+        const existing = s.users.find((u) => u.id === user.id);
+        // Points/streak are still awarded locally (until Phase 5), so a Firestore snapshot must not
+        // reset them: keep the local counters when the user is already known here.
+        const merged = existing
+          ? { ...existing, ...user, points: existing.points, streakCount: existing.streakCount, lastActiveDate: existing.lastActiveDate }
+          : user;
+        const users = existing ? s.users.map((u) => (u.id === user.id ? merged : u)) : [...s.users, merged];
+        return { state: { ...s, users, currentUserId: user.id, locationGranted: user.locationSource ? user.locationSource === "gps" : s.locationGranted }, result: undefined };
+      });
+    },
+    [commit],
+  );
+
+  const patchUser = useCallback<Store["patchUser"]>(
+    (patch) => {
+      commit((s) => (s.currentUserId ? { state: updateUser(s, s.currentUserId, patch), result: undefined } : { state: s, result: undefined }));
+    },
+    [commit],
+  );
 
   const setLocation = useCallback<Store["setLocation"]>(
     (loc, granted) => {
@@ -336,7 +363,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (!s.currentUserId) return { state: { ...s, locationGranted: granted }, result: undefined };
         return {
           state: {
-            ...updateUser(s, s.currentUserId, { location: loc, neighbourhood: nearestNeighbourhood(loc) }),
+            ...updateUser(s, s.currentUserId, { location: loc, neighbourhood: nearestNeighbourhood(loc), locationSource: granted ? "gps" : "default" }),
             locationGranted: granted,
           },
           result: undefined,
@@ -527,6 +554,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       distanceTo,
       login,
       logout,
+      adoptUser,
+      patchUser,
       setLocation,
       claimPost,
       confirmPickup,
@@ -546,6 +575,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       distanceTo,
       login,
       logout,
+      adoptUser,
+      patchUser,
       setLocation,
       claimPost,
       confirmPickup,

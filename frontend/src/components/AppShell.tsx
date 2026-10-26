@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import {
   FlameIcon,
@@ -15,8 +15,9 @@ import {
   UserIcon,
 } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { PageSkeleton } from "@/components/ui/Skeleton";
+import { useSession } from "@/lib/auth";
 import { formatPoints } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { User } from "@/lib/types";
@@ -174,16 +175,52 @@ function MobileTabBar({ pathname }: { pathname: string }) {
   );
 }
 
+/** Auth guard for the (app) route group: skeleton while the session loads, /login when signed out. */
 export function AppShell({ children }: { children: ReactNode }) {
-  const { hydrated, currentUser, logout } = useStore();
+  const session = useSession();
+  const store = useStore();
   const router = useRouter();
   const pathname = usePathname();
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    if (hydrated && !currentUser) router.replace("/login");
-  }, [hydrated, currentUser, router]);
+    if (session.status === "signed-out") router.replace("/login");
+  }, [session.status, router]);
 
-  if (!hydrated || !currentUser) {
+  // Phase 1 bridge: points/streak are still awarded locally, so prefer the store's mirror of the
+  // profile for display. Falls back to the Firestore profile until the mirror catches up.
+  const user = store.currentUser ?? session.user;
+
+  const onLogout = async () => {
+    setSigningOut(true);
+    try {
+      await session.signOut();
+      router.replace("/login");
+    } catch (err) {
+      setSigningOut(false);
+      console.error("Sign out failed:", err);
+    }
+  };
+
+  if (session.status === "signed-in" && !user) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-stone-50 px-4">
+        <div role="alert" className="w-full max-w-md rounded-3xl border border-rose-200 bg-white p-6 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-2xl">!</div>
+          <h1 className="mt-4 text-xl font-extrabold text-stone-900">Couldn&apos;t load your profile</h1>
+          <p className="mt-1 text-sm text-stone-500">{session.error ?? "Please try again."}</p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button onClick={session.retry}>Try again</Button>
+            <Button variant="ghost" onClick={() => void onLogout()} loading={signingOut}>
+              Sign out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (session.status !== "signed-in" || !user) {
     return (
       <div className="min-h-dvh bg-stone-50">
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:pl-72 lg:px-8">
@@ -195,15 +232,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-stone-50">
-      <Sidebar
-        user={currentUser}
-        pathname={pathname}
-        onLogout={() => {
-          logout();
-          router.replace("/login");
-        }}
-      />
-      <MobileTopBar user={currentUser} />
+      <Sidebar user={user} pathname={pathname} onLogout={() => void onLogout()} />
+      <MobileTopBar user={user} />
       <main className="md:pl-64">
         <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-4 sm:px-6 md:pb-12 md:pt-8 lg:px-8">{children}</div>
       </main>

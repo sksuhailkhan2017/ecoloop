@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { ArrowRightIcon, GiftIcon, HeartIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/Button";
-import { useStore } from "@/lib/store";
+import { useSession } from "@/lib/auth";
 
 const STEPS = [
   {
@@ -36,8 +36,8 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const { hydrated, currentUser } = useStore();
-  const signedIn = hydrated && !!currentUser;
+  const session = useSession();
+  const signedIn = session.status === "signed-in" && !!session.user;
 
   return (
     <div className="min-h-dvh bg-stone-50 text-stone-900">

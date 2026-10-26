@@ -13,6 +13,7 @@ import { FlameIcon, GiftIcon, LogOutIcon, MapPinIcon, RefreshIcon, ScanIcon } fr
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Field";
+import { useSession } from "@/lib/auth";
 import { formatKg, formatMonthYear, formatPoints, timeAgo } from "@/lib/format";
 import { pointsForLog } from "@/lib/points";
 import { useStore } from "@/lib/store";
@@ -21,8 +22,20 @@ type Tab = "listings" | "log";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { state, currentUser, stats, userById, distanceTo, logout, resetDemo } = useStore();
+  const session = useSession();
+  const { state, currentUser, stats, userById, distanceTo, resetDemo } = useStore();
   const [tab, setTab] = useState<Tab>("listings");
+  const [signingOut, setSigningOut] = useState(false);
+
+  const onSignOut = async () => {
+    setSigningOut(true);
+    try {
+      await session.signOut();
+      router.replace("/login");
+    } catch {
+      setSigningOut(false);
+    }
+  };
 
   const myPosts = useMemo(
     () => (currentUser ? state.posts.filter((p) => p.ownerId === currentUser.id) : []),
@@ -74,6 +87,11 @@ export default function ProfilePage() {
               <span>Member since {formatMonthYear(user.joinedAt)}</span>
             </p>
             {user.bio && <p className="mt-2 max-w-md text-sm text-emerald-50">{user.bio}</p>}
+            {user.isGuest && (
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-emerald-50 ring-1 ring-white/20">
+                Guest account · lives on this device
+              </p>
+            )}
           </div>
           <div className="flex gap-3 sm:flex-col sm:items-end">
             <div className="rounded-2xl bg-white/15 px-4 py-2.5 ring-1 ring-white/20 backdrop-blur">
@@ -194,28 +212,23 @@ export default function ProfilePage() {
       </section>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 pt-6">
-        <Button
-          variant="ghost"
-          leftIcon={<LogOutIcon />}
-          onClick={() => {
-            logout();
-            router.replace("/login");
-          }}
-        >
+        <Button variant="ghost" leftIcon={<LogOutIcon />} onClick={() => void onSignOut()} loading={signingOut}>
           Sign out
         </Button>
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm("Reset all demo data in this browser? Your posts, logs and points go back to the seed.")) {
-              resetDemo();
-              router.replace("/login");
-            }
-          }}
-          className="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-700"
-        >
-          <RefreshIcon size={14} /> Reset demo data
-        </button>
+        {session.mode === "demo" && (
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("Reset all demo data in this browser? Your posts, logs and points go back to the seed.")) {
+                resetDemo();
+                router.replace("/login");
+              }
+            }}
+            className="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-stone-700"
+          >
+            <RefreshIcon size={14} /> Reset demo data
+          </button>
+        )}
       </div>
     </>
   );
