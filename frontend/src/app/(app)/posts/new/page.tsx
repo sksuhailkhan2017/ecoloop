@@ -77,7 +77,8 @@ export default function NewPostPage() {
         photoURL,
         fromScanId,
       });
-      toast.points(r.delta, r.bonus ? `7-day streak bonus too! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
+      if (r.delta > 0) toast.points(r.delta, r.bonus ? `7-day streak bonus too! 🔥 ${r.streakCount}-day streak` : `${r.streakCount}-day streak 🔥`);
+      else toast.show({ title: "Posted!", description: "Daily post points reached — your listing is live anyway.", tone: "info" });
       router.push(`/posts/${r.post.id}`);
     } catch (err) {
       setSubmitting(null);

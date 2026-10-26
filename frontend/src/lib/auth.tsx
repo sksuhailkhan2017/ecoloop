@@ -159,6 +159,7 @@ function FirebaseSession({ children }: { children: ReactNode }) {
       const cred = await linkWithPopup(current, provider);
       // Same uid, now permanent. Refresh the public profile with the Google identity.
       const g = cred.user;
+      await g.getIdToken(true); // rules check sign_in_provider; make sure the next write carries the Google token
       const name = g.displayName?.trim() || user?.name || "Neighbour";
       const base = slugify(name) || "neighbour";
       await patchUserDoc(g.uid, {

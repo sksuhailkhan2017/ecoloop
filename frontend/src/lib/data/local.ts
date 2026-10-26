@@ -4,10 +4,10 @@
 import { DEMO_CLAIMS, DEMO_LOGS, DEMO_POSTS, DEMO_USERS } from "../demo-data";
 import { avatarColorFor, initialsOf, nowIso, randomCode, slugify, uid } from "../format";
 import { DEFAULT_LOCATION, nearestNeighbourhood } from "../geo";
-import { MAX_LOG_POINTS_PER_DAY, POINTS, isDiverted, nextStreak, pointsForLog, todayInToronto } from "../points";
+import { MAX_LOG_POINTS_PER_DAY, POINTS, giverHandoverLimit, isDiverted, nextStreak, pointsForLog, postPointsFor, receiverHandoverLimit, todayInToronto } from "../points";
 import { rewardById } from "../rewards";
 import type { Claim, LedgerEntry, LogEntry, PointsReason, Post, Redemption, User } from "../types";
-import { MAX_PICKUP_POINTS_PER_DAY, PAIR_COOLDOWN_DAYS, type DataSource, type Unsub } from "./source";
+import type { DataSource, Unsub } from "./source";
 
 export const STORAGE_KEY = "ecoloop.demo.v2";
 
@@ -211,9 +211,10 @@ export const localSource: DataSource = {
         createdAt: nowIso(),
       };
       let next: State = { ...s, posts: [post, ...s.posts] };
-      next = award(next, owner.id, POINTS.post_created, "post_created", post.id);
+      const awardPts = postPointsFor(s.ledger.filter((e) => e.userId === owner.id));
+      if (awardPts > 0) next = award(next, owner.id, awardPts, "post_created", post.id);
       const streak = touchStreak(next, owner.id);
-      return { state: streak.state, result: { post, delta: POINTS.post_created, streakCount: streak.streakCount, bonus: streak.bonus } };
+      return { state: streak.state, result: { post, delta: awardPts, streakCount: streak.streakCount, bonus: streak.bonus, capped: awardPts === 0 } };
     });
   },
 
@@ -238,20 +239,17 @@ export const localSource: DataSource = {
       if (current.status !== "open") throw new Error("This item was already given away");
       if (!s.claims.some((c) => c.postId === post.id && c.userId === claimerId)) throw new Error("That person hasn't asked for this item");
 
-      const now = Date.now();
-      const samePairRecently = s.posts.some(
-        (p) =>
-          p.id !== post.id &&
-          p.status === "picked_up" &&
-          p.pickedUpAt &&
-          now - new Date(p.pickedUpAt).getTime() < PAIR_COOLDOWN_DAYS * 86_400_000 &&
-          ((p.ownerId === me.id && p.claimerId === claimerId) || (p.ownerId === claimerId && p.claimerId === me.id)),
-      );
-      const today = todayInToronto();
-      const giverToday = s.ledger.filter((e) => e.userId === me.id && e.reason === "pickup_giver" && todayInToronto(new Date(e.createdAt)) === today).length;
-      let limited: string | undefined;
-      if (samePairRecently) limited = `You two already traded in the last ${PAIR_COOLDOWN_DAYS} days — no points this time.`;
-      else if (giverToday >= MAX_PICKUP_POINTS_PER_DAY) limited = `Daily limit: points for ${MAX_PICKUP_POINTS_PER_DAY} handovers a day.`;
+      const claimer = s.users.find((u) => u.id === claimerId);
+      const myHandoverLedger = s.ledger.filter((e) => e.userId === me.id && (e.reason === "pickup_giver" || e.reason === "pickup_receiver"));
+      const limited = giverHandoverLimit({
+        ownerIsGuest: me.isGuest === true,
+        claimerIsGuest: claimer?.isGuest === true,
+        priorHandovers: s.posts.filter((p) => p.status === "picked_up"),
+        myHandoverLedger,
+        me: me.id,
+        claimerId,
+        postId: post.id,
+      });
 
       let next: State = {
         ...s,
@@ -261,7 +259,9 @@ export const localSource: DataSource = {
       };
       if (!limited) {
         next = award(next, me.id, POINTS.pickup_giver, "pickup_giver", post.id);
-        next = award(next, claimerId, POINTS.pickup_receiver, "pickup_receiver", post.id); // single device: credit both now
+        // Single device: credit the receiver now, subject to their own caps.
+        const theirs = s.ledger.filter((e) => e.userId === claimerId && (e.reason === "pickup_giver" || e.reason === "pickup_receiver"));
+        if (!receiverHandoverLimit(theirs)) next = award(next, claimerId, POINTS.pickup_receiver, "pickup_receiver", post.id);
       }
       return { state: next, result: { ownerDelta: limited ? 0 : POINTS.pickup_giver, claimerDelta: limited ? 0 : POINTS.pickup_receiver, limited } };
     });

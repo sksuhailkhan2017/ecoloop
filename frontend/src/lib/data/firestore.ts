@@ -24,12 +24,10 @@ import { withTimeout } from "../async";
 import { toUser } from "../db/users";
 import { getDb } from "../firebase.client";
 import { nowIso, randomCode } from "../format";
-import { MAX_LOG_POINTS_PER_DAY, POINTS, isDiverted, nextStreak, pointsForLog, todayInToronto } from "../points";
+import { MAX_LOG_POINTS_PER_DAY, POINTS, giverHandoverLimit, isDiverted, nextStreak, pointsForLog, postPointsFor, receiverHandoverLimit, todayInToronto } from "../points";
 import { rewardById } from "../rewards";
 import type { Claim, LedgerEntry, LogEntry, PointsReason, Post, Redemption, User } from "../types";
 import {
-  MAX_PICKUP_POINTS_PER_DAY,
-  PAIR_COOLDOWN_DAYS,
   receiverLedgerId,
   type CreatePostResult,
   type DataSource,
@@ -200,8 +198,12 @@ export const firestoreSource: DataSource = {
 
   createPost(me, input): Promise<CreatePostResult> {
     return run("Couldn't publish your post.", async () => {
+      const d = db();
       const ref = newRef("posts");
-      return runTransaction(db(), async (tx) => {
+      // Anti-farming: post points are capped per day; the listing itself always goes live.
+      const postLedger = await getDocs(query(collection(d, "ledger"), where("userId", "==", me.id), where("reason", "==", "post_created")));
+      const award = postPointsFor(postLedger.docs.map((x) => x.data() as LedgerEntry));
+      return runTransaction(d, async (tx) => {
         const u = await readUserTx(tx, me.id);
         const post: Post = {
           id: ref.id,
@@ -219,15 +221,15 @@ export const firestoreSource: DataSource = {
           createdAt: nowIso(),
         };
         tx.set(ref, withoutId(post));
-        tx.set(newRef("ledger"), ledgerEntry(me.id, POINTS.post_created, "post_created", ref.id));
-        let delta = POINTS.post_created;
+        let delta = award;
+        if (award > 0) tx.set(newRef("ledger"), ledgerEntry(me.id, award, "post_created", ref.id));
         const streak = streakPatch(u);
         if (streak.bonus) {
           tx.set(newRef("ledger"), ledgerEntry(me.id, POINTS.streak_7, "streak_7"));
           delta += POINTS.streak_7;
         }
         tx.update(userRef(me.id), { ...streak.patch, points: u.points + delta });
-        return { post, delta: POINTS.post_created, streakCount: streak.streakCount, bonus: streak.bonus };
+        return { post, delta: award, streakCount: streak.streakCount, bonus: streak.bonus, capped: award === 0 };
       });
     });
   },
@@ -255,27 +257,22 @@ export const firestoreSource: DataSource = {
       if (post.status !== "open") throw new Error("This item was already given away");
       const d = db();
 
-      // Anti-collusion checks need queries, which client transactions can't run — read first.
-      const since = Date.now() - PAIR_COOLDOWN_DAYS * 86_400_000;
-      const [given, received, giverLedger] = await Promise.all([
+      // Anti-farming checks need queries, which client transactions can't run — read first.
+      const [given, received, handoverLedger, claimer] = await Promise.all([
         getDocs(query(collection(d, "posts"), where("ownerId", "==", me.id), where("status", "==", "picked_up"))),
         getDocs(query(collection(d, "posts"), where("claimerId", "==", me.id), where("status", "==", "picked_up"))),
-        getDocs(query(collection(d, "ledger"), where("userId", "==", me.id), where("reason", "==", "pickup_giver"))),
+        getDocs(query(collection(d, "ledger"), where("userId", "==", me.id), where("reason", "in", ["pickup_giver", "pickup_receiver"]))),
+        firestoreSource.getUser(claimerId),
       ]);
-      const recentPair = [...given.docs, ...received.docs]
-        .map((x) => fromDoc<Post>(x))
-        .some(
-          (p) =>
-            p.id !== post.id &&
-            p.pickedUpAt &&
-            new Date(p.pickedUpAt).getTime() > since &&
-            ((p.ownerId === me.id && p.claimerId === claimerId) || (p.ownerId === claimerId && p.claimerId === me.id)),
-        );
-      const today = todayInToronto();
-      const giverToday = giverLedger.docs.filter((x) => todayInToronto(new Date((x.data() as LedgerEntry).createdAt)) === today).length;
-      let limited: string | undefined;
-      if (recentPair) limited = `You two already traded in the last ${PAIR_COOLDOWN_DAYS} days — no points this time.`;
-      else if (giverToday >= MAX_PICKUP_POINTS_PER_DAY) limited = `Daily limit: points for ${MAX_PICKUP_POINTS_PER_DAY} handovers a day.`;
+      const limited = giverHandoverLimit({
+        ownerIsGuest: me.isGuest === true,
+        claimerIsGuest: claimer?.isGuest !== false,
+        priorHandovers: [...given.docs, ...received.docs].map((x) => fromDoc<Post>(x)),
+        myHandoverLedger: handoverLedger.docs.map((x) => x.data() as LedgerEntry),
+        me: me.id,
+        claimerId,
+        postId: post.id,
+      });
 
       await runTransaction(d, async (tx) => {
         const fresh = await tx.get(postRef(post.id));
@@ -301,14 +298,14 @@ export const firestoreSource: DataSource = {
 
   creditReceivedPickup(me, post) {
     if (post.status !== "picked_up" || post.claimerId !== me.id || !post.pointsAwarded) return Promise.resolve(false);
+    if (me.isGuest) return Promise.resolve(false); // handover points need a linked account (rules enforce it too)
     return run("Couldn't credit your pickup points.", async () => {
       const d = db();
-      // Already credited? Ask via a query (rules allow listing my own ledger); a direct get on a
-      // not-yet-existing doc would be rejected by the read rule.
-      const prior = await getDocs(
-        query(collection(d, "ledger"), where("userId", "==", me.id), where("reason", "==", "pickup_receiver"), where("refId", "==", post.id)),
-      );
-      if (!prior.empty) return false;
+      // Already credited, or over the receiver caps? Checked against my own ledger (readable by me).
+      const mine = await getDocs(query(collection(d, "ledger"), where("userId", "==", me.id), where("reason", "in", ["pickup_giver", "pickup_receiver"])));
+      const entries = mine.docs.map((x) => x.data() as LedgerEntry);
+      if (entries.some((e) => e.reason === "pickup_receiver" && e.refId === post.id)) return false;
+      if (receiverHandoverLimit(entries)) return false;
       const ref = doc(d, "ledger", receiverLedgerId(post.id));
       return runTransaction(d, async (tx) => {
         const u = await readUserTx(tx, me.id);

@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -8,7 +9,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { NeighbourhoodPicker } from "@/components/NeighbourhoodPicker";
 import { PostCard } from "@/components/PostCard";
 import { StatCard } from "@/components/StatCard";
-import { StreamChart } from "@/components/StreamChart";
 import { StreamPill } from "@/components/StreamPill";
 import { FlameIcon, GiftIcon, LogOutIcon, MapPinIcon, RefreshIcon, ScanIcon } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
@@ -24,6 +24,12 @@ import { DEFAULT_LOCATION, haversineKm } from "@/lib/geo";
 import { pointsForLog } from "@/lib/points";
 
 type Tab = "listings" | "log";
+
+// recharts is ~100 kB; only the profile needs it, and only when there is data to draw.
+const StreamChart = dynamic(() => import("@/components/StreamChart").then((m) => m.StreamChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-32 w-full" />,
+});
 
 export default function ProfilePage() {
   const router = useRouter();

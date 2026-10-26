@@ -20,7 +20,7 @@ import { data } from "@/lib/data";
 import { useClaims, usePost, useUser, useUsers } from "@/lib/data/hooks";
 import { firstName, formatPoints, pluralize, timeAgo } from "@/lib/format";
 import { DEFAULT_LOCATION, formatDistance, haversineKm } from "@/lib/geo";
-import { POINTS } from "@/lib/points";
+import { LINKED_ACCOUNTS_MESSAGE, POINTS } from "@/lib/points";
 import { samplePost } from "@/lib/sample-posts";
 import { CATEGORY_META, CONDITION_META, type User } from "@/lib/types";
 import { UploadNotConfiguredError, uploadPhoto } from "@/lib/upload";
@@ -231,6 +231,7 @@ export default function PostDetailPage() {
               )}
               <p className="mt-3 text-xs text-stone-400">
                 Confirming with a handover photo earns you +{POINTS.pickup_giver} and the receiver +{POINTS.pickup_receiver}.
+                {me?.isGuest && <span className="mt-1 block text-amber-700">{LINKED_ACCOUNTS_MESSAGE} Link Google from Profile.</span>}
               </p>
             </section>
           ) : (
@@ -251,6 +252,9 @@ export default function PostDetailPage() {
               <p className="text-center text-sm text-stone-500">
                 {claimCount === 0 ? "Be the first to ask." : `${pluralize(claimCount, "person", "people")} ${claimCount === 1 ? "has" : "have"} asked for this.`}
               </p>
+              {me?.isGuest && !post.isSample && (
+                <p className="text-center text-xs text-amber-700">Sign in with Google (Profile) to earn +{POINTS.pickup_receiver} when you pick this up.</p>
+              )}
             </div>
           )}
         </div>

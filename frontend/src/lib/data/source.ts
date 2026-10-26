@@ -18,7 +18,7 @@ export type NewPostInput = {
   fromScanId?: string;
 };
 
-export type CreatePostResult = { post: Post; delta: number; streakCount: number; bonus: boolean };
+export type CreatePostResult = { post: Post; delta: number; streakCount: number; bonus: boolean; capped?: boolean };
 export type PickupResult = { ownerDelta: number; claimerDelta: number; limited?: string };
 export type LogResult = { delta: number; streakCount: number; bonus: boolean; count: number; capped: boolean };
 
@@ -52,9 +52,5 @@ export interface DataSource {
   redeem(me: User, rewardId: string): Promise<{ code: string }>;
 }
 
-/** Anti-collusion: the same two people earn handover points at most once per 7 days. */
-export const PAIR_COOLDOWN_DAYS = 7;
-/** A giver earns handover points for at most this many pickups per day. */
-export const MAX_PICKUP_POINTS_PER_DAY = 3;
 /** Ledger doc id for the receiver's credit — deterministic so it can only be created once. */
 export const receiverLedgerId = (postId: string) => `pickup_receiver_${postId}`;
