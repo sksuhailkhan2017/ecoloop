@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
+import { Reveal } from "@/components/motion";
 import { ScanResultCard } from "@/components/ScanResultCard";
 import { StreamPill } from "@/components/StreamPill";
 import { ArrowRightIcon, CheckIcon, GiftIcon, ScanIcon, SearchIcon } from "@/components/icons";
@@ -136,7 +137,7 @@ export default function ScanResultPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-8">
         <div className="space-y-4">
-          <div className="flex items-center gap-4 rounded-3xl border border-stone-200 bg-white p-4">
+          <Reveal className="flex items-center gap-4 rounded-3xl border border-stone-200 bg-white p-4">
             {scan.photoURL ? (
               <img src={scan.photoURL} alt="Scanned item" className="h-20 w-20 shrink-0 rounded-2xl object-cover" />
             ) : (
@@ -149,7 +150,7 @@ export default function ScanResultPage() {
               </p>
               {scan.hint && <p className="mt-0.5 truncate text-sm text-stone-500">Your hint: “{scan.hint}”</p>}
             </div>
-          </div>
+          </Reveal>
 
           {result ? (
             result.items.map((item, i) => <ScanResultCard key={`${item.name}-${i}`} item={item} index={result.items.length > 1 ? i : undefined} />)

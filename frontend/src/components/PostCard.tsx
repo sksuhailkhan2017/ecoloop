@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ItemImage } from "@/components/ItemImage";
+import { Reveal } from "@/components/motion";
 import { CheckIcon, HeartIcon, MapPinIcon } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip } from "@/components/ui/Chip";
@@ -16,21 +17,25 @@ export function PostCard({
   distanceKm,
   claimCount,
   mine = false,
+  index = 0,
 }: {
   post: Post;
   owner?: User;
   distanceKm: number;
   claimCount: number;
   mine?: boolean;
+  /** Position in the list, for the entrance stagger (first 8 cards, 40 ms apart). */
+  index?: number;
 }) {
   const cat = CATEGORY_META[post.category];
   const gone = post.status === "picked_up";
 
   return (
-    <Link
-      href={`/posts/${post.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
-    >
+    <Reveal index={index} className="flex">
+      <Link
+        href={`/posts/${post.id}`}
+        className="group flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 motion-reduce:hover:translate-y-0"
+      >
       <div className="relative">
         <ItemImage
           src={post.photoURL}
@@ -82,6 +87,7 @@ export function PostCard({
           <span className="shrink-0">{timeAgo(post.createdAt)}</span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </Reveal>
   );
 }

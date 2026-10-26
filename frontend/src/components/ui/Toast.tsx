@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { CheckIcon, SparklesIcon, XIcon } from "@/components/icons";
+import { useCountUp } from "@/components/motion";
 
 type Tone = "success" | "info" | "error" | "points";
 
@@ -11,6 +12,8 @@ export type ToastInput = {
   description?: string;
   tone?: Tone;
   durationMs?: number;
+  /** Points toasts count up to this number instead of showing the title. */
+  countTo?: number;
 };
 
 type Toast = ToastInput & { id: number };
@@ -52,7 +55,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       success: (title, description) => show({ title, description, tone: "success" }),
       error: (title, description) => show({ title, description, tone: "error" }),
       points: (delta, description) =>
-        show({ title: `${delta > 0 ? "+" : ""}${delta} points`, description, tone: "points" }),
+        show({ title: `${delta > 0 ? "+" : ""}${delta} points`, description, tone: "points", countTo: delta }),
     }),
     [show],
   );
@@ -73,7 +76,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             >
               <span className="mt-0.5 shrink-0">{style.icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold leading-5">{t.title}</p>
+                <p className="text-sm font-semibold leading-5">{t.countTo !== undefined ? <CountUpTitle to={t.countTo} /> : t.title}</p>
                 {t.description && (
                   <p className={`mt-0.5 text-sm leading-5 ${t.tone === "points" ? "text-emerald-50" : "text-stone-500"}`}>
                     {t.description}
@@ -93,6 +96,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         })}
       </div>
     </ToastContext.Provider>
+  );
+}
+
+function CountUpTitle({ to }: { to: number }) {
+  const n = useCountUp(Math.abs(to));
+  return (
+    <>
+      {to < 0 ? "−" : "+"}
+      {n} points
+    </>
   );
 }
 

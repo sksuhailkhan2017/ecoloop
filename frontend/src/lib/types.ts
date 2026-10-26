@@ -99,6 +99,8 @@ export type User = {
   joinedAt: string;
   /** Anonymous Firebase account ("Continue as guest"). */
   isGuest?: boolean;
+  /** When the first-login walkthrough was completed or skipped. */
+  onboardedAt?: string;
   /** Seeded demo profile (demo mode only, never in Firestore). */
   isDemo?: boolean;
 };

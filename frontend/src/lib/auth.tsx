@@ -22,6 +22,7 @@ import {
   signOutUser,
 } from "./firebase.client";
 import { avatarColorFor, initialsOf, slugify } from "./format";
+import { setSignedInFlag } from "./session-flag";
 import type { User } from "./types";
 
 export type SessionStatus = "loading" | "signed-out" | "signed-in";
@@ -53,7 +54,6 @@ export type Session = {
 
 const SessionContext = createContext<Session | null>(null);
 
-/** Thrown by sign-in helpers when the user closed the popup — callers should stay quiet. */
 export class SignInCancelled extends Error {
   constructor() {
     super("Sign-in cancelled");
@@ -92,12 +92,14 @@ function FirebaseSession({ children }: { children: ReactNode }) {
       unsubUser = null;
       if (!fb) {
         uidRef.current = null;
+        setSignedInFlag(false);
         setUser(null);
         setError(null);
         setStatus("signed-out");
         return;
       }
       uidRef.current = fb.uid;
+      setSignedInFlag(true);
       setStatus("loading");
       try {
         const first = await ensureUserDoc(fb);
@@ -225,7 +227,14 @@ function FirebaseSession({ children }: { children: ReactNode }) {
 function DemoSession({ children }: { children: ReactNode }) {
   const [snap, setSnap] = useState<{ hydrated: boolean; user: User | null; demoUsers: User[] }>({ hydrated: false, user: null, demoUsers: [] });
 
-  useEffect(() => localSession.subscribe((user, demoUsers) => setSnap({ hydrated: true, user, demoUsers })), []);
+  useEffect(
+    () =>
+      localSession.subscribe((user, demoUsers) => {
+        setSignedInFlag(!!user);
+        setSnap({ hydrated: true, user, demoUsers });
+      }),
+    [],
+  );
 
   const status: SessionStatus = !snap.hydrated ? "loading" : snap.user ? "signed-in" : "signed-out";
 

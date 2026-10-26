@@ -157,7 +157,7 @@ export default function ScanPage() {
 function ScanningOverlay({ message }: { message: string }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-stone-900/70 text-white backdrop-blur-sm animate-fade-in">
-      <div aria-hidden="true" className="absolute inset-x-8 top-1/2 h-0.5 -translate-y-1/2 bg-emerald-400/80 shadow-[0_0_24px_4px_rgba(52,211,153,0.6)] animate-pulse" />
+      <div aria-hidden="true" className="absolute inset-x-8 h-0.5 bg-emerald-400/80 shadow-[0_0_24px_4px_rgba(52,211,153,0.6)] animate-scan-sweep" />
       <Spinner className="h-8 w-8" />
       <p className="text-sm font-semibold" aria-live="polite">
         {message}

@@ -3,13 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ArrowRightIcon, GiftIcon, HeartIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { useToast } from "@/components/ui/Toast";
 import { errorMessage } from "@/lib/async";
-import { useSession } from "@/lib/auth";
+import { readSignedInFlag } from "@/lib/session-flag";
+import { guestName } from "@/lib/format";
 
 const STEPS = [
   {
@@ -40,11 +40,16 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const session = useSession();
   const router = useRouter();
-  const toast = useToast();
   const [trying, setTrying] = useState(false);
-  const signedIn = session.status === "signed-in" && !!session.user;
+  const [error, setError] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+
+  // The landing page is the QR-code target, so it ships without the app providers and never
+  // loads Firebase. A localStorage flag kept by the session flips the buttons for returning users.
+  useEffect(() => {
+    setSignedIn(readSignedInFlag());
+  }, []);
 
   // One tap in: a guest account, no email asked. Google can be linked later from Profile.
   const tryIt = async () => {
@@ -53,12 +58,19 @@ export default function LandingPage() {
       return;
     }
     setTrying(true);
+    setError(null);
     try {
-      await session.signInAsGuest();
+      const fb = await import("@/lib/firebase.client");
+      if (fb.isFirebaseConfigured) {
+        await fb.signInAsGuest();
+      } else {
+        const { localSession } = await import("@/lib/data/local");
+        localSession.login({ name: guestName() });
+      }
       router.push("/login"); // shows the one-time location step, then the feed
     } catch (err) {
       setTrying(false);
-      toast.error("Couldn't start a guest session", errorMessage(err));
+      setError(errorMessage(err));
     }
   };
 
@@ -75,7 +87,7 @@ export default function LandingPage() {
             <a href="#how" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-stone-600 hover:text-stone-900 sm:inline-block">
               How it works
             </a>
-            <ButtonLink href={signedIn ? "/feed" : "/login"} size="sm">
+            <ButtonLink href={signedIn ? "/feed" : "/login"} size="sm" prefetch={false}>
               {signedIn ? "Open app" : "Sign in"}
             </ButtonLink>
           </nav>
@@ -111,11 +123,16 @@ export default function LandingPage() {
                   Try it — no sign-up
                 </Button>
               )}
-              <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" variant="outline">
+              <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" variant="outline" prefetch={false}>
                 {signedIn ? "Browse free items nearby" : "Sign in with Google"}
               </ButtonLink>
             </div>
             <p className="mt-4 text-sm text-stone-500">No email or password needed to start. Works on any phone browser.</p>
+            {error && (
+              <p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                Couldn&apos;t start a guest session: {error}
+              </p>
+            )}
           </div>
 
           <div className="relative mx-auto w-full max-w-sm animate-pop lg:max-w-md">

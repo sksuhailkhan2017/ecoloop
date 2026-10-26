@@ -34,7 +34,7 @@ export function buttonClasses({
   className?: string;
 }) {
   return [
-    "inline-flex items-center justify-center rounded-xl font-semibold transition select-none",
+    "inline-flex items-center justify-center rounded-xl font-semibold transition select-none active:scale-[0.98] motion-reduce:active:scale-100",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600",
     "disabled:pointer-events-none disabled:opacity-50",
     VARIANTS[variant],

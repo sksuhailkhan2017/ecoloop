@@ -141,9 +141,10 @@ export default function FeedPage() {
         />
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-          {rows.map(({ post, distanceKm }) => (
+          {rows.map(({ post, distanceKm }, i) => (
             <PostCard
               key={post.id}
+              index={i}
               post={post}
               owner={owners.get(post.ownerId)}
               distanceKm={distanceKm}

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { FlameIcon, GiftIcon, HomeIcon, LogOutIcon, PlusIcon, ScanIcon, UserIcon } from "@/components/icons";
+import { Onboarding } from "@/components/Onboarding";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { PageSkeleton } from "@/components/ui/Skeleton";
@@ -242,6 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-stone-50">
       <ReceiverCredit user={user} />
+      <Onboarding user={user} />
       <Sidebar user={user} pathname={pathname} onLogout={() => void onLogout()} />
       <MobileTopBar user={user} />
       <main className="md:pl-64">

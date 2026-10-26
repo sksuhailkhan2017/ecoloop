@@ -4,7 +4,7 @@ import { doc, onSnapshot, runTransaction, updateDoc, type DocumentData } from "f
 
 import { withTimeout } from "../async";
 import { getDb } from "../firebase.client";
-import { avatarColorFor, initialsOf, nowIso, slugify } from "../format";
+import { avatarColorFor, guestName, initialsOf, nowIso, slugify } from "../format";
 import { DEFAULT_LOCATION, nearestNeighbourhood } from "../geo";
 import type { User } from "../types";
 
@@ -18,10 +18,7 @@ function db() {
 
 export const userRef = (uid: string) => doc(db(), "users", uid);
 
-/** "Neighbour 4821" — guests get a friendly, non-identifying name. */
-export function guestName(): string {
-  return `Neighbour ${1000 + Math.floor(Math.random() * 9000)}`;
-}
+export { guestName };
 
 /** The user document written on first sign-in. Points and streak start at zero (enforced by rules). */
 export function newUserDoc(fb: FirebaseUser): Omit<User, "id"> {
