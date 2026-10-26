@@ -1,40 +1,61 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-import { PageHeader } from "@/components/AppShell";
+import { LiveStatus, PageHeader } from "@/components/AppShell";
 import { RewardCard } from "@/components/RewardCard";
 import { ClipboardIcon, GiftIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
+import { SignInCancelled, useSession } from "@/lib/auth";
+import { errorMessage } from "@/lib/async";
+import { data } from "@/lib/data";
+import { useMyRedemptions } from "@/lib/data/hooks";
 import { formatDate, formatPoints } from "@/lib/format";
-import { useStore } from "@/lib/store";
+import { REWARDS, rewardById } from "@/lib/rewards";
 import type { Reward } from "@/lib/types";
 
 export default function RewardsPage() {
   const toast = useToast();
-  const { state, currentUser, redeem } = useStore();
+  const session = useSession();
+  const user = session.user;
+  const redemptions = useMyRedemptions(user?.id ?? null);
   const [pending, setPending] = useState<Reward | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [linking, setLinking] = useState(false);
   const [issued, setIssued] = useState<{ reward: Reward; code: string } | null>(null);
 
-  const balance = currentUser?.points ?? 0;
-  const myRedemptions = useMemo(
-    () => (currentUser ? state.redemptions.filter((r) => r.userId === currentUser.id) : []),
-    [state.redemptions, currentUser],
-  );
-  const rewardById = (id: string) => state.rewards.find((r) => r.id === id);
+  const balance = user?.points ?? 0;
+  // Redeeming is the one action that needs a real identity: it stops someone farming points across
+  // throw-away guest accounts.
+  const needsGoogle = session.mode === "firebase" && !!user?.isGuest;
 
-  const confirm = () => {
-    if (!pending) return;
-    const r = redeem(pending.id);
-    if (!r.ok || !r.code) {
-      toast.error("Couldn't redeem", r.error);
-      return;
+  const confirm = async () => {
+    if (!pending || !user) return;
+    setBusy(true);
+    try {
+      const r = await data.redeem(user, pending.id);
+      setIssued({ reward: pending, code: r.code });
+      setPending(null);
+      toast.points(-pending.cost, `${pending.title} at ${pending.businessName}`);
+    } catch (err) {
+      toast.error("Couldn't redeem", errorMessage(err));
+    } finally {
+      setBusy(false);
     }
-    setIssued({ reward: pending, code: r.code });
-    setPending(null);
-    toast.points(-pending.cost, `${pending.title} at ${pending.businessName}`);
+  };
+
+  const onLink = async () => {
+    setLinking(true);
+    try {
+      await session.linkWithGoogle();
+      toast.success("Account saved", "You can redeem rewards now.");
+    } catch (err) {
+      if (!(err instanceof SignInCancelled)) toast.error("Couldn't link Google", errorMessage(err));
+    } finally {
+      setLinking(false);
+    }
   };
 
   const copy = async (code: string) => {
@@ -62,55 +83,68 @@ export default function RewardsPage() {
         </div>
       </div>
 
+      {needsGoogle && (
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center">
+          <div className="flex-1 text-sm text-amber-900">
+            <p className="font-semibold">Sign in with Google to redeem.</p>
+            <p>Guests can earn points, but a redeem code needs a real account. Your points come with you.</p>
+          </div>
+          <Button onClick={() => void onLink()} loading={linking}>
+            Sign in with Google
+          </Button>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {state.rewards.map((reward) => (
-          <RewardCard key={reward.id} reward={reward} balance={balance} onRedeem={setPending} />
+        {REWARDS.map((reward) => (
+          <RewardCard key={reward.id} reward={reward} balance={needsGoogle ? 0 : balance} onRedeem={setPending} />
         ))}
       </div>
 
-      {myRedemptions.length > 0 && (
-        <section className="mt-10">
-          <h2 className="mb-3 text-lg font-bold text-stone-900">My redemptions</h2>
-          <ul className="divide-y divide-stone-100 overflow-hidden rounded-3xl border border-stone-200 bg-white">
-            {myRedemptions.map((r) => {
-              const reward = rewardById(r.rewardId);
-              return (
-                <li key={r.id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="text-2xl" aria-hidden="true">
-                    {reward?.emoji ?? "🎁"}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-stone-900">{reward?.title ?? "Reward"}</p>
-                    <p className="truncate text-xs text-stone-500">
-                      {reward?.businessName} · {formatDate(r.createdAt)}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copy(r.code)}
-                    className="rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-sm font-bold tracking-widest text-stone-800 hover:bg-stone-200"
-                  >
-                    {r.code}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
+      <section className="mt-10">
+        <LiveStatus error={redemptions.error} slow={redemptions.slow} onRetry={redemptions.retry} />
+        {(redemptions.data ?? []).length > 0 && (
+          <>
+            <h2 className="mb-3 text-lg font-bold text-stone-900">My redemptions</h2>
+            <ul className="divide-y divide-stone-100 overflow-hidden rounded-3xl border border-stone-200 bg-white">
+              {(redemptions.data ?? []).map((r) => {
+                const reward = rewardById(r.rewardId);
+                return (
+                  <li key={r.id} className="flex items-center gap-3 px-4 py-3">
+                    <span className="text-2xl" aria-hidden="true">
+                      {reward?.emoji ?? "🎁"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold text-stone-900">{reward?.title ?? "Reward"}</p>
+                      <p className="truncate text-xs text-stone-500">
+                        {reward?.businessName} · {formatDate(r.createdAt)}
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => copy(r.code)} className="rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-sm font-bold tracking-widest text-stone-800 hover:bg-stone-200">
+                      {r.code}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </section>
 
       {/* Confirm */}
       <Modal
         open={!!pending}
-        onClose={() => setPending(null)}
+        onClose={() => !busy && setPending(null)}
         title={pending ? `Redeem ${pending.title}?` : ""}
         description={pending ? `${pending.businessName} · ${pending.address}` : undefined}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setPending(null)}>
+            <Button variant="ghost" onClick={() => setPending(null)} disabled={busy}>
               Cancel
             </Button>
-            <Button onClick={confirm}>Redeem for {pending ? formatPoints(pending.cost) : ""} pts</Button>
+            <Button onClick={() => void confirm()} loading={busy}>
+              Redeem for {pending ? formatPoints(pending.cost) : ""} pts
+            </Button>
           </>
         }
       >

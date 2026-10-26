@@ -1,21 +1,18 @@
 {
   "name": "ecoloop",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "EcoLoop — Instagram for reducing waste in Markham, ON. Monorepo: frontend/ (Next.js), backend/ (Express API), python/ (data tooling).",
+  "description": "EcoLoop \u2014 scan it, sort it, share it. Markham's waste-reduction app: one Next.js app (frontend/) on Firebase + Cloudinary + Gemini; data tooling in python/.",
   "scripts": {
-    "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install",
-    "dev": "concurrently -k -n frontend,backend -c green,blue \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",
-    "dev:frontend": "npm --prefix frontend run dev",
-    "dev:backend": "npm --prefix backend run dev",
-    "build": "npm --prefix frontend run build && npm --prefix backend run typecheck",
-    "lint": "npm --prefix frontend run lint && npm --prefix backend run typecheck",
-    "seed": "npm --prefix backend run seed"
+    "install:all": "npm --prefix frontend install",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "lint": "npm --prefix frontend run lint",
+    "test:e2e": "npm --prefix frontend run test:e2e",
+    "validate:rules": "python python/scripts/validate_rules.py"
   },
   "engines": {
     "node": ">=20"
-  },
-  "devDependencies": {
-    "concurrently": "^10.0.6"
   }
 }

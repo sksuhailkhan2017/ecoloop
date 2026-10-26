@@ -2,13 +2,16 @@
 
 import type { ReactNode } from "react";
 
+import { MotionProvider } from "@/components/motion";
 import { ToastProvider } from "@/components/ui/Toast";
-import { StoreProvider } from "@/lib/store";
+import { SessionProvider } from "@/lib/auth";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <StoreProvider>
-      <ToastProvider>{children}</ToastProvider>
-    </StoreProvider>
+    <MotionProvider>
+      <SessionProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </SessionProvider>
+    </MotionProvider>
   );
 }

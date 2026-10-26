@@ -42,6 +42,8 @@ class DisposalRule(BaseModel):
     reusable: bool
     reuse_suggestion: Optional[str] = None
     est_weight_g: int = Field(gt=0)
+    # False until a human has checked the entry against markham.ca "What Goes Where".
+    verified: bool = False
 
 
 RULES_ADAPTER = TypeAdapter(list[DisposalRule])
@@ -63,6 +65,8 @@ def validate(path: Path) -> int:
     for stream, count in sorted(Counter(r.stream for r in rules).items(), key=lambda kv: -kv[1]):
         print(f"  {stream:<18} {count}")
     print(f"  reusable: {sum(r.reusable for r in rules)}")
+    unverified = sum(not r.verified for r in rules)
+    print(f"  verified: {len(rules) - unverified} / {len(rules)}" + (f"  (WARN: {unverified} still to check against markham.ca)" if unverified else ""))
 
     if duplicates:
         print(f"WARN: duplicate items: {', '.join(duplicates)}")

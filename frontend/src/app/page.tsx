@@ -2,10 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { ArrowRightIcon, GiftIcon, HeartIcon, MapPinIcon, RecycleIcon, ScanIcon, SparklesIcon } from "@/components/icons";
-import { ButtonLink } from "@/components/ui/Button";
-import { useStore } from "@/lib/store";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { errorMessage } from "@/lib/async";
+import { readSignedInFlag } from "@/lib/session-flag";
+import { guestName } from "@/lib/format";
 
 const STEPS = [
   {
@@ -36,8 +40,39 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const { hydrated, currentUser } = useStore();
-  const signedIn = hydrated && !!currentUser;
+  const router = useRouter();
+  const [trying, setTrying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+
+  // The landing page is the QR-code target, so it ships without the app providers and never
+  // loads Firebase. A localStorage flag kept by the session flips the buttons for returning users.
+  useEffect(() => {
+    setSignedIn(readSignedInFlag());
+  }, []);
+
+  // One tap in: a guest account, no email asked. Google can be linked later from Profile.
+  const tryIt = async () => {
+    if (signedIn) {
+      router.push("/feed");
+      return;
+    }
+    setTrying(true);
+    setError(null);
+    try {
+      const fb = await import("@/lib/firebase.client");
+      if (fb.isFirebaseConfigured) {
+        await fb.signInAsGuest();
+      } else {
+        const { localSession } = await import("@/lib/data/local");
+        localSession.login({ name: guestName() });
+      }
+      router.push("/login"); // shows the one-time location step, then the feed
+    } catch (err) {
+      setTrying(false);
+      setError(errorMessage(err));
+    }
+  };
 
   return (
     <div className="min-h-dvh bg-stone-50 text-stone-900">
@@ -52,13 +87,14 @@ export default function LandingPage() {
             <a href="#how" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-stone-600 hover:text-stone-900 sm:inline-block">
               How it works
             </a>
-            <ButtonLink href={signedIn ? "/feed" : "/login"} size="sm">
+            <ButtonLink href={signedIn ? "/feed" : "/login"} size="sm" prefetch={false}>
               {signedIn ? "Open app" : "Sign in"}
             </ButtonLink>
           </nav>
         </div>
       </header>
 
+      <main>
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-emerald-200/50 blur-3xl" />
@@ -79,14 +115,25 @@ export default function LandingPage() {
               EcoLoop tells you which Markham bin or depot anything belongs in, helps you give what still works to a neighbour, and rewards you at local shops.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={signedIn ? "/scan" : "/login"} size="xl" rightIcon={<ArrowRightIcon />}>
-                {signedIn ? "Scan an item" : "Get started — it's free"}
-              </ButtonLink>
-              <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" variant="outline">
-                Browse free items nearby
+              {signedIn ? (
+                <ButtonLink href="/scan" size="xl" rightIcon={<ArrowRightIcon />}>
+                  Scan an item
+                </ButtonLink>
+              ) : (
+                <Button size="xl" onClick={() => void tryIt()} loading={trying} rightIcon={<ArrowRightIcon />}>
+                  Try it — no sign-up
+                </Button>
+              )}
+              <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" variant="outline" prefetch={false}>
+                {signedIn ? "Browse free items nearby" : "Sign in with Google"}
               </ButtonLink>
             </div>
-            <p className="mt-4 text-sm text-stone-500">No account or password needed. Works on any phone browser.</p>
+            <p className="mt-4 text-sm text-stone-500">No email or password needed to start. Works on any phone browser.</p>
+            {error && (
+              <p role="alert" className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                Couldn&apos;t start a guest session: {error}
+              </p>
+            )}
           </div>
 
           <div className="relative mx-auto w-full max-w-sm animate-pop lg:max-w-md">
@@ -183,16 +230,27 @@ export default function LandingPage() {
       <section className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 lg:py-24">
         <Image src="/ecoloop-logo.png" alt="EcoLoop" width={96} height={96} className="mx-auto h-24 w-24 rounded-[20px] shadow-lg" />
         <h2 className="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">Ready to sort smarter?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-stone-600">Pick a demo neighbour or type your name, allow location, and scan your first item in under a minute.</p>
+        <p className="mx-auto mt-3 max-w-xl text-stone-600">Try it as a guest in one tap, allow location, and scan your first item in under a minute.</p>
         <div className="mt-8 flex justify-center">
-          <ButtonLink href={signedIn ? "/feed" : "/login"} size="xl" rightIcon={<ArrowRightIcon />}>
-            {signedIn ? "Open EcoLoop" : "Get started"}
-          </ButtonLink>
+          {signedIn ? (
+            <ButtonLink href="/feed" size="xl" rightIcon={<ArrowRightIcon />}>
+              Open EcoLoop
+            </ButtonLink>
+          ) : (
+            <Button size="xl" onClick={() => void tryIt()} loading={trying} rightIcon={<ArrowRightIcon />}>
+              Try it — no sign-up
+            </Button>
+          )}
         </div>
       </section>
 
+      </main>
+
       <footer className="border-t border-stone-200 py-8 text-center text-sm text-stone-500">
-        EcoLoop · GDG Markham civic-tech hackathon · Sorting rules drafted from City of Markham guidance — verify at markham.ca
+        EcoLoop · GDG Markham civic-tech hackathon · Sorting rules drafted from City of Markham guidance — verify at markham.ca ·{" "}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-stone-700">
+          Privacy
+        </Link>
       </footer>
     </div>
   );

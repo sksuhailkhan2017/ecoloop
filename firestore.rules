@@ -1,0 +1,163 @@
+rules_version = '2';
+
+// EcoLoop Firestore rules. Deploy from the repo root:
+//   npx firebase-tools login            (once)
+//   npx firebase-tools deploy --only firestore:rules
+// or paste this file into Firebase console → Firestore → Rules → Publish. See README → Deploy.
+//
+// Points are computed on the client (hackathon scope). The rules bound what a client can write:
+// own documents only, deltas that match the reason, and handover credits only for a real
+// handover between two Google-linked accounts. Daily/weekly caps live in lib/points.ts and are
+// enforced client-side; a determined user could still inflate their own balance. A Cloud
+// Function is the production path; see README → Known limits.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    /** True for "Continue as guest" (anonymous) sessions. */
+    function isAnonymous() {
+      return request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isStr(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function post(id) {
+      return get(/databases/$(database)/documents/posts/$(id)).data;
+    }
+
+    function user(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    // Point deltas allowed per ledger reason (lib/points.ts). Log/post points may be reduced by caps.
+    function validDelta(reason, delta) {
+      return (reason == 'log_diverted' && delta >= 0 && delta <= 5)
+        || (reason == 'log_garbage' && delta >= 0 && delta <= 1)
+        || (reason == 'post_created' && delta == 5)
+        || (reason == 'pickup_giver' && delta == 25)
+        || (reason == 'pickup_receiver' && delta == 15)
+        || (reason == 'streak_7' && delta == 20)
+        || (reason == 'redeem' && delta < 0);
+    }
+
+    // users/{uid} — public profile + points. Anyone signed in can read (names and avatars show on
+    // posts); only the owner writes. New docs start at zero. `isGuest` must always reflect the real
+    // sign-in provider, so nobody can pose as a linked account to unlock handover points.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid)
+        && incoming().points == 0
+        && incoming().streakCount == 0
+        && isStr(incoming().name, 80)
+        && incoming().isGuest == isAnonymous();
+      allow update: if isSelf(uid)
+        && isStr(incoming().name, 80)
+        && incoming().isGuest == isAnonymous();
+      allow delete: if false;
+    }
+
+    // posts/{postId} — marketplace listings.
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if isSelf(incoming().ownerId)
+        && incoming().status == 'open'
+        && incoming().claimCount == 0
+        && isStr(incoming().title, 80)
+        && isStr(incoming().description, 600)
+        && incoming().category in ['furniture', 'clothing', 'electronics', 'kitchen', 'kids', 'books', 'other']
+        && incoming().condition in ['like_new', 'good', 'fair']
+        && isStr(incoming().photoURL, 2048)
+        && incoming().createdAt is string;
+      // Owner may update anything except ownerId/createdAt (pickup, photo).
+      // Anyone else may only bump claimCount by exactly 1 while the post is open ("I want this").
+      allow update: if signedIn()
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && (
+          request.auth.uid == existing().ownerId
+          || (
+            existing().status == 'open'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['claimCount'])
+            && incoming().claimCount == existing().claimCount + 1
+          )
+        );
+      allow delete: if false;
+
+      // posts/{postId}/claims/{uid} — "I want this". Readable by the claimer and the post owner.
+      match /claims/{uid} {
+        allow read: if isSelf(uid) || (signedIn() && request.auth.uid == post(postId).ownerId);
+        allow create: if isSelf(uid)
+          && incoming().userId == uid
+          && post(postId).status == 'open'
+          && post(postId).ownerId != uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // `resource == null` lets a client `get` a doc that does not exist yet (returns nothing).
+
+    // logs/{logId} — items the user logged as disposed.
+    match /logs/{logId} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId) && isStr(incoming().itemName, 120);
+      allow update, delete: if false;
+    }
+
+    // redemptions/{id} — reward codes. Guests cannot redeem (the UI gates it; this makes it stick).
+    match /redemptions/{id} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId) && !isAnonymous() && isStr(incoming().code, 12);
+      allow update, delete: if false;
+    }
+
+    // ledger/{entryId} — every point change.
+    // Handover credits (pickup_giver / pickup_receiver) require: a real Google-linked caller, the
+    // referenced post handed over with points, the caller on the right side of it, and the other
+    // party also Google-linked. The receiver's entry id is fixed to pickup_receiver_<postId>, so it
+    // can be written once only.
+    match /ledger/{entryId} {
+      allow read: if signedIn() && (resource == null || existing().userId == request.auth.uid);
+      allow create: if isSelf(incoming().userId)
+        && validDelta(incoming().reason, incoming().delta)
+        && (
+          (incoming().reason != 'pickup_giver' && incoming().reason != 'pickup_receiver')
+          || (
+            !isAnonymous()
+            && post(incoming().refId).status == 'picked_up'
+            && post(incoming().refId).pointsAwarded == true
+            && (
+              (
+                incoming().reason == 'pickup_giver'
+                && post(incoming().refId).ownerId == request.auth.uid
+                && user(post(incoming().refId).claimerId).isGuest == false
+              )
+              || (
+                incoming().reason == 'pickup_receiver'
+                && entryId == 'pickup_receiver_' + incoming().refId
+                && post(incoming().refId).claimerId == request.auth.uid
+                && user(post(incoming().refId).ownerId).isGuest == false
+              )
+            )
+          )
+        );
+      allow update, delete: if false;
+    }
+  }
+}

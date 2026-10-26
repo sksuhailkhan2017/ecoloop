@@ -1,5 +1,4 @@
-// Shared domain types for the frontend. Mirrors backend/src/types.ts (keep in sync) and
-// docs/SPEC.md §4 / §6, plus the demo-mode shapes used by lib/store.tsx.
+// Shared domain types for the app. Mirrors docs/SPEC.md §4 / §6 plus the fields added after the hackathon.
 
 export const STREAMS = [
   "blue_box",
@@ -68,6 +67,8 @@ export type DisposalRule = {
   reusable: boolean;
   reuse_suggestion?: string;
   est_weight_g: number;
+  /** False until a human checked the entry against markham.ca "What Goes Where". */
+  verified?: boolean;
 };
 
 export type PointsReason =
@@ -92,9 +93,18 @@ export type User = {
   streakCount: number;
   lastActiveDate?: string; // YYYY-MM-DD America/Toronto
   location: LatLng;
+  /** How `location` was obtained. Unset = never asked (login shows the location step). */
+  locationSource?: LocationSource;
   joinedAt: string;
+  /** Anonymous Firebase account ("Continue as guest"). */
+  isGuest?: boolean;
+  /** When the first-login walkthrough was completed or skipped. */
+  onboardedAt?: string;
+  /** Seeded demo profile (demo mode only, never in Firestore). */
   isDemo?: boolean;
 };
+
+export type LocationSource = "gps" | "picked" | "default";
 
 export type Post = {
   id: string;
@@ -107,11 +117,17 @@ export type Post = {
   location: LatLng;
   neighbourhood: string;
   status: PostStatus;
+  /** Denormalised number of claims (non-owners may bump it by exactly 1 — see firestore.rules). */
+  claimCount?: number;
   claimerId?: string;
   pickupPhotoURL?: string;
   pickedUpAt?: string;
+  /** Set by the owner on pickup: false when anti-collusion withheld points for this handover. */
+  pointsAwarded?: boolean;
   fromScanId?: string;
   createdAt: string;
+  /** Static "Sample listing" shown to first visitors (never stored in Firestore). */
+  isSample?: boolean;
 };
 
 export type Claim = {

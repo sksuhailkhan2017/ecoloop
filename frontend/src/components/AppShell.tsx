@@ -3,22 +3,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import {
-  FlameIcon,
-  GiftIcon,
-  HomeIcon,
-  LogOutIcon,
-  PlusIcon,
-  ScanIcon,
-  UserIcon,
-} from "@/components/icons";
+import { FlameIcon, GiftIcon, HomeIcon, LogOutIcon, PlusIcon, ScanIcon, UserIcon } from "@/components/icons";
+import { Onboarding } from "@/components/Onboarding";
 import { Avatar } from "@/components/ui/Avatar";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { PageSkeleton } from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
+import { useSession } from "@/lib/auth";
+import { data } from "@/lib/data";
+import { useReceivedPosts } from "@/lib/data/hooks";
 import { formatPoints } from "@/lib/format";
-import { useStore } from "@/lib/store";
+import { POINTS } from "@/lib/points";
 import type { User } from "@/lib/types";
 
 const NAV = [
@@ -101,7 +98,7 @@ function Sidebar({ user, pathname, onLogout }: { user: User; pathname: string; o
           <Avatar user={user} size="md" />
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block truncate text-sm font-bold text-stone-900">{user.name}</span>
-            <span className="block truncate text-xs text-stone-500">{user.neighbourhood}</span>
+            <span className="block truncate text-xs text-stone-500">{user.isGuest ? "Guest · " : ""}{user.neighbourhood}</span>
           </span>
         </Link>
         <div className="mt-2 flex items-center justify-between gap-2 px-2">
@@ -136,10 +133,7 @@ function MobileTopBar({ user }: { user: User }) {
 function MobileTabBar({ pathname }: { pathname: string }) {
   const tabs = [NAV[0], NAV[1], NAV[2]];
   return (
-    <nav
-      aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur safe-bottom md:hidden"
-    >
+    <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 bg-white/95 backdrop-blur safe-bottom md:hidden">
       <ul className="mx-auto grid max-w-md grid-cols-3">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
@@ -149,9 +143,7 @@ function MobileTabBar({ pathname }: { pathname: string }) {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${
-                  active ? "text-emerald-700" : "text-stone-500"
-                }`}
+                className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${active ? "text-emerald-700" : "text-stone-500"}`}
               >
                 {isScan ? (
                   <span
@@ -174,16 +166,71 @@ function MobileTabBar({ pathname }: { pathname: string }) {
   );
 }
 
+/**
+ * Receiver side of a handover. The owner's device can only write the owner's points (rules), so
+ * when one of my claimed posts flips to picked_up with points, credit myself once (idempotent).
+ */
+function ReceiverCredit({ user }: { user: User }) {
+  const toast = useToast();
+  const received = useReceivedPosts(user.id);
+  const attempted = useRef(new Set<string>());
+  useEffect(() => {
+    for (const post of received.data ?? []) {
+      if (!post.pointsAwarded || attempted.current.has(post.id)) continue;
+      attempted.current.add(post.id);
+      data
+        .creditReceivedPickup(user, post)
+        .then((credited) => {
+          if (credited) toast.points(POINTS.pickup_receiver, `Pickup of “${post.title}” confirmed. Thanks for reusing!`);
+        })
+        .catch((err) => console.warn("receiver credit failed:", err));
+    }
+  }, [received.data, user, toast]);
+  return null;
+}
+
+/** Auth guard for the (app) route group: skeleton while the session loads, /login when signed out. */
 export function AppShell({ children }: { children: ReactNode }) {
-  const { hydrated, currentUser, logout } = useStore();
+  const session = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const [signingOut, setSigningOut] = useState(false);
+  const user = session.user;
 
   useEffect(() => {
-    if (hydrated && !currentUser) router.replace("/login");
-  }, [hydrated, currentUser, router]);
+    if (session.status === "signed-out") router.replace("/login");
+  }, [session.status, router]);
 
-  if (!hydrated || !currentUser) {
+  const onLogout = async () => {
+    setSigningOut(true);
+    try {
+      await session.signOut();
+      router.replace("/login");
+    } catch (err) {
+      setSigningOut(false);
+      console.error("Sign out failed:", err);
+    }
+  };
+
+  if (session.status === "signed-in" && !user) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-stone-50 px-4">
+        <div role="alert" className="w-full max-w-md rounded-3xl border border-rose-200 bg-white p-6 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-2xl">!</div>
+          <h1 className="mt-4 text-xl font-extrabold text-stone-900">Couldn&apos;t load your profile</h1>
+          <p className="mt-1 text-sm text-stone-500">{session.error ?? "Please try again."}</p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button onClick={session.retry}>Try again</Button>
+            <Button variant="ghost" onClick={() => void onLogout()} loading={signingOut}>
+              Sign out
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (session.status !== "signed-in" || !user) {
     return (
       <div className="min-h-dvh bg-stone-50">
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:pl-72 lg:px-8">
@@ -195,15 +242,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-stone-50">
-      <Sidebar
-        user={currentUser}
-        pathname={pathname}
-        onLogout={() => {
-          logout();
-          router.replace("/login");
-        }}
-      />
-      <MobileTopBar user={currentUser} />
+      <ReceiverCredit user={user} />
+      <Onboarding user={user} />
+      <Sidebar user={user} pathname={pathname} onLogout={() => void onLogout()} />
+      <MobileTopBar user={user} />
       <main className="md:pl-64">
         <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-4 sm:px-6 md:pb-12 md:pt-8 lg:px-8">{children}</div>
       </main>
@@ -237,6 +279,24 @@ export function PageHeader({
         </div>
         {action}
       </div>
+    </div>
+  );
+}
+
+/** Shared "taking longer than usual" / error strip for live lists. */
+export function LiveStatus({ error, slow, onRetry }: { error: string | null; slow: boolean; onRetry: () => void }) {
+  if (!error && !slow) return null;
+  return (
+    <div
+      role={error ? "alert" : "status"}
+      className={`mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-sm ${
+        error ? "border-rose-200 bg-rose-50 text-rose-800" : "border-amber-200 bg-amber-50 text-amber-900"
+      }`}
+    >
+      <span>{error ?? "Taking longer than usual… check your connection."}</span>
+      <Button size="sm" variant={error ? "danger" : "outline"} onClick={onRetry}>
+        Retry
+      </Button>
     </div>
   );
 }

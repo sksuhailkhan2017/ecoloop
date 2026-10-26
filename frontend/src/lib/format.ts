@@ -86,3 +86,8 @@ export function uid(): string {
 export function nowIso(): string {
   return new Date().toISOString();
 }
+
+/** "Neighbour 4821" — guests get a friendly, non-identifying name. */
+export function guestName(): string {
+  return `Neighbour ${1000 + Math.floor(Math.random() * 9000)}`;
+}

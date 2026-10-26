@@ -7,7 +7,7 @@ export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dan
 export type ButtonSize = "sm" | "md" | "lg" | "xl";
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-emerald-600 text-white shadow-sm shadow-emerald-600/20 hover:bg-emerald-700 active:bg-emerald-800",
+  primary: "bg-emerald-700 text-white shadow-sm shadow-emerald-700/20 hover:bg-emerald-800 active:bg-emerald-900",
   secondary: "bg-emerald-50 text-emerald-800 hover:bg-emerald-100 active:bg-emerald-200",
   outline: "border border-stone-300 bg-white text-stone-800 hover:bg-stone-50 active:bg-stone-100",
   ghost: "text-stone-700 hover:bg-stone-100 active:bg-stone-200",
@@ -34,7 +34,7 @@ export function buttonClasses({
   className?: string;
 }) {
   return [
-    "inline-flex items-center justify-center rounded-xl font-semibold transition select-none",
+    "inline-flex items-center justify-center rounded-xl font-semibold transition select-none active:scale-[0.98] motion-reduce:active:scale-100",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600",
     "disabled:pointer-events-none disabled:opacity-50",
     VARIANTS[variant],

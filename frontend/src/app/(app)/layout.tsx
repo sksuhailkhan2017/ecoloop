@@ -1,5 +1,11 @@
 import { AppShell } from "@/components/AppShell";
 
+import { Providers } from "../providers";
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+  return (
+    <Providers>
+      <AppShell>{children}</AppShell>
+    </Providers>
+  );
 }

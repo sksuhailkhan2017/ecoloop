@@ -48,6 +48,21 @@ export function videoFrameToDataUrl(video: HTMLVideoElement, maxEdge = MAX_EDGE,
   return drawScaled(video, w, h, maxEdge, quality);
 }
 
+/** Scan uploads are downscaled to this edge: plenty for Gemini, small enough to post in < 1 s. */
+export const SCAN_MAX_EDGE = 768;
+
+/** Re-encodes an existing data URL at a smaller size (used before sending a photo to /api/scan). */
+export async function downscaleDataUrl(dataUrl: string, maxEdge = SCAN_MAX_EDGE, quality = 0.8): Promise<string> {
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("Could not read image"));
+    el.src = dataUrl;
+  });
+  if (Math.max(img.naturalWidth, img.naturalHeight) <= maxEdge) return dataUrl;
+  return drawScaled(img, img.naturalWidth, img.naturalHeight, maxEdge, quality);
+}
+
 export function isDataUrl(src: string): boolean {
   return src.startsWith("data:");
 }

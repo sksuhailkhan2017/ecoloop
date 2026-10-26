@@ -1,1214 +1,2100 @@
 [
   {
     "item": "Paper coffee cup",
-    "aliases": ["takeout coffee cup", "hot drink cup", "paper cup", "tim hortons cup", "starbucks cup"],
+    "aliases": [
+      "takeout coffee cup",
+      "hot drink cup",
+      "paper cup",
+      "tim hortons cup",
+      "starbucks cup"
+    ],
     "stream": "blue_box",
     "instructions": "Empty it and place it in the Blue Box. Remove the lid and sleeve first — each one is sorted separately.",
     "reusable": false,
-    "est_weight_g": 12
+    "est_weight_g": 12,
+    "verified": false
   },
   {
     "item": "Coffee cup lid (plastic)",
-    "aliases": ["plastic lid", "takeout lid", "cup lid"],
+    "aliases": [
+      "plastic lid",
+      "takeout lid",
+      "cup lid"
+    ],
     "stream": "blue_box",
     "instructions": "Rigid plastic lids go in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 4
+    "est_weight_g": 4,
+    "verified": false
   },
   {
     "item": "Coffee cup sleeve (cardboard)",
-    "aliases": ["cup sleeve", "cardboard sleeve", "java jacket"],
+    "aliases": [
+      "cup sleeve",
+      "cardboard sleeve",
+      "java jacket"
+    ],
     "stream": "blue_box",
     "instructions": "Cardboard sleeves go in the Blue Box with other paper.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Plastic water bottle",
-    "aliases": ["water bottle", "plastic bottle", "pop bottle", "PET bottle"],
+    "aliases": [
+      "water bottle",
+      "plastic bottle",
+      "pop bottle",
+      "PET bottle"
+    ],
     "stream": "blue_box",
     "instructions": "Empty, rinse and place in the Blue Box. Caps can stay on or go in loose.",
     "reusable": false,
-    "est_weight_g": 18
+    "est_weight_g": 18,
+    "verified": false
   },
   {
     "item": "Bottle cap (plastic)",
-    "aliases": ["plastic cap", "screw cap"],
+    "aliases": [
+      "plastic cap",
+      "screw cap"
+    ],
     "stream": "blue_box",
     "instructions": "Plastic caps go in the Blue Box — leave them on the bottle so they don't fall through sorting screens.",
     "reusable": false,
-    "est_weight_g": 2
+    "est_weight_g": 2,
+    "verified": false
   },
   {
     "item": "Pop can",
-    "aliases": ["aluminum can", "soda can", "beer can", "drink can"],
+    "aliases": [
+      "aluminum can",
+      "soda can",
+      "beer can",
+      "drink can"
+    ],
     "stream": "blue_box",
     "instructions": "Empty and rinse, then into the Blue Box. No need to crush.",
     "reusable": false,
-    "est_weight_g": 15
+    "est_weight_g": 15,
+    "verified": false
   },
   {
     "item": "Metal food can",
-    "aliases": ["tin can", "soup can", "steel can", "canned food tin"],
+    "aliases": [
+      "tin can",
+      "soup can",
+      "steel can",
+      "canned food tin"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse and place in the Blue Box. Push the lid inside the can so it isn't a loose sharp.",
     "reusable": false,
-    "est_weight_g": 50
+    "est_weight_g": 50,
+    "verified": false
   },
   {
     "item": "Glass bottle",
-    "aliases": ["wine bottle", "beer bottle", "glass drink bottle"],
+    "aliases": [
+      "wine bottle",
+      "beer bottle",
+      "glass drink bottle"
+    ],
     "stream": "blue_box",
     "instructions": "Empty and rinse, then into the Blue Box. Beer and LCBO bottles can also be returned to The Beer Store for a deposit.",
     "reusable": false,
-    "est_weight_g": 400
+    "est_weight_g": 400,
+    "verified": false
   },
   {
     "item": "Glass jar",
-    "aliases": ["jam jar", "pasta sauce jar", "mason jar", "pickle jar"],
+    "aliases": [
+      "jam jar",
+      "pasta sauce jar",
+      "mason jar",
+      "pickle jar"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse and place in the Blue Box. Metal lids go in too.",
     "reusable": true,
     "reuse_suggestion": "Mason-style jars are great for storage — post a set if you have many.",
-    "est_weight_g": 220
+    "est_weight_g": 220,
+    "verified": false
   },
   {
     "item": "Cardboard box (flattened)",
-    "aliases": ["cardboard", "corrugated box", "amazon box", "shipping box", "moving box"],
+    "aliases": [
+      "cardboard",
+      "corrugated box",
+      "amazon box",
+      "shipping box",
+      "moving box"
+    ],
     "stream": "blue_box",
     "instructions": "Flatten and bundle. Remove plastic tape and packing material. Put it beside your Blue Box on collection day.",
     "reusable": true,
     "reuse_suggestion": "Moving boxes in good shape are always wanted — post them on the Marketplace.",
-    "est_weight_g": 350
+    "est_weight_g": 350,
+    "verified": false
   },
   {
     "item": "Newspaper",
-    "aliases": ["flyers", "newsprint", "junk mail"],
+    "aliases": [
+      "flyers",
+      "newsprint",
+      "junk mail"
+    ],
     "stream": "blue_box",
     "instructions": "Blue Box. Keep it dry and remove plastic sleeves.",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Office paper",
-    "aliases": ["printer paper", "paper", "envelopes", "letters", "notebook paper"],
+    "aliases": [
+      "printer paper",
+      "paper",
+      "envelopes",
+      "letters",
+      "notebook paper"
+    ],
     "stream": "blue_box",
     "instructions": "Blue Box. Window envelopes and staples are fine; shredded paper should be bagged in a clear bag.",
     "reusable": false,
-    "est_weight_g": 100
+    "est_weight_g": 100,
+    "verified": false
   },
   {
     "item": "Magazine",
-    "aliases": ["catalogue", "glossy paper", "brochure"],
+    "aliases": [
+      "catalogue",
+      "glossy paper",
+      "brochure"
+    ],
     "stream": "blue_box",
     "instructions": "Blue Box, glossy pages included.",
     "reusable": true,
     "reuse_suggestion": "Schools and daycares often take magazines for crafts.",
-    "est_weight_g": 250
+    "est_weight_g": 250,
+    "verified": false
   },
   {
     "item": "Cereal box",
-    "aliases": ["boxboard", "cracker box", "paperboard box", "tissue box"],
+    "aliases": [
+      "boxboard",
+      "cracker box",
+      "paperboard box",
+      "tissue box"
+    ],
     "stream": "blue_box",
     "instructions": "Remove the plastic liner (garbage), flatten the box and put it in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 60
+    "est_weight_g": 60,
+    "verified": false
   },
   {
     "item": "Milk carton",
-    "aliases": ["juice carton", "gable-top carton", "cream carton"],
+    "aliases": [
+      "juice carton",
+      "gable-top carton",
+      "cream carton"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse and place in the Blue Box. Plastic spouts can stay on.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Juice box (Tetra Pak)",
-    "aliases": ["tetra pak", "drink box", "aseptic carton", "soup carton", "broth carton"],
+    "aliases": [
+      "tetra pak",
+      "drink box",
+      "aseptic carton",
+      "soup carton",
+      "broth carton"
+    ],
     "stream": "blue_box",
     "instructions": "Empty, rinse and place in the Blue Box. Straw goes in the garbage.",
     "reusable": false,
-    "est_weight_g": 25
+    "est_weight_g": 25,
+    "verified": false
   },
   {
     "item": "Yogurt tub",
-    "aliases": ["plastic tub", "margarine tub", "sour cream container", "plastic container with lid"],
+    "aliases": [
+      "plastic tub",
+      "margarine tub",
+      "sour cream container",
+      "plastic container with lid"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse and place in the Blue Box with the lid on. Black plastic tubs are not accepted — those go in the garbage.",
     "reusable": false,
-    "est_weight_g": 20
+    "est_weight_g": 20,
+    "verified": false
   },
   {
     "item": "Plastic takeout container",
-    "aliases": ["takeout container", "clear plastic container", "deli container", "clamshell container"],
+    "aliases": [
+      "takeout container",
+      "clear plastic container",
+      "deli container",
+      "clamshell container"
+    ],
     "stream": "blue_box",
     "instructions": "Clear or white rigid plastic takeout containers go in the Blue Box once rinsed. Black plastic goes in the garbage.",
     "reusable": false,
-    "est_weight_g": 25
+    "est_weight_g": 25,
+    "verified": false
   },
   {
     "item": "Plastic clamshell (berries)",
-    "aliases": ["berry container", "clamshell", "produce container"],
+    "aliases": [
+      "berry container",
+      "clamshell",
+      "produce container"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse and place in the Blue Box. Remove the absorbent pad (garbage).",
     "reusable": false,
-    "est_weight_g": 15
+    "est_weight_g": 15,
+    "verified": false
   },
   {
     "item": "Laundry detergent jug",
-    "aliases": ["detergent bottle", "plastic jug", "HDPE jug", "bleach bottle"],
+    "aliases": [
+      "detergent bottle",
+      "plastic jug",
+      "HDPE jug",
+      "bleach bottle"
+    ],
     "stream": "blue_box",
     "instructions": "Empty, rinse and place in the Blue Box with the cap on.",
     "reusable": false,
-    "est_weight_g": 120
+    "est_weight_g": 120,
+    "verified": false
   },
   {
     "item": "Shampoo bottle",
-    "aliases": ["conditioner bottle", "body wash bottle", "lotion bottle", "soap pump bottle"],
+    "aliases": [
+      "conditioner bottle",
+      "body wash bottle",
+      "lotion bottle",
+      "soap pump bottle"
+    ],
     "stream": "blue_box",
     "instructions": "Empty and rinse, then Blue Box. Pump tops can stay on.",
     "reusable": false,
-    "est_weight_g": 40
+    "est_weight_g": 40,
+    "verified": false
   },
   {
     "item": "Aerosol can (empty)",
-    "aliases": ["empty spray can", "hairspray can", "cooking spray can"],
+    "aliases": [
+      "empty spray can",
+      "hairspray can",
+      "cooking spray can"
+    ],
     "stream": "blue_box",
     "instructions": "Completely empty aerosol cans go in the Blue Box. If it still sprays, it's hazardous waste.",
     "reusable": false,
-    "est_weight_g": 80
+    "est_weight_g": 80,
+    "verified": false
   },
   {
     "item": "Aluminum foil (clean)",
-    "aliases": ["tin foil", "foil", "foil tray"],
+    "aliases": [
+      "tin foil",
+      "foil",
+      "foil tray"
+    ],
     "stream": "blue_box",
     "instructions": "Clean foil can be balled up (fist-sized) and placed in the Blue Box. Greasy foil goes in the garbage.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Aluminum pie plate",
-    "aliases": ["foil pie plate", "foil pan", "aluminum tray"],
+    "aliases": [
+      "foil pie plate",
+      "foil pan",
+      "aluminum tray"
+    ],
     "stream": "blue_box",
     "instructions": "Rinse off food and place in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 20
+    "est_weight_g": 20,
+    "verified": false
   },
   {
     "item": "Plastic bag (clean)",
-    "aliases": ["grocery bag", "plastic shopping bag", "bread bag", "plastic film", "bubble wrap"],
+    "aliases": [
+      "grocery bag",
+      "plastic shopping bag",
+      "bread bag",
+      "plastic film",
+      "bubble wrap"
+    ],
     "stream": "blue_box",
     "instructions": "Stuff clean, dry plastic bags and film into one bag, tie it, and put it in the Blue Box. Verify current film rules on markham.ca — many grocery stores also take them back.",
     "reusable": false,
-    "est_weight_g": 6
+    "est_weight_g": 6,
+    "verified": false
   },
   {
     "item": "Paper bag",
-    "aliases": ["kraft bag", "brown paper bag", "takeout paper bag"],
+    "aliases": [
+      "kraft bag",
+      "brown paper bag",
+      "takeout paper bag"
+    ],
     "stream": "blue_box",
     "instructions": "Clean paper bags go in the Blue Box. Greasy ones go in the Green Bin.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Egg carton (paper)",
-    "aliases": ["egg carton", "pulp egg carton", "fibre egg carton"],
+    "aliases": [
+      "egg carton",
+      "pulp egg carton",
+      "fibre egg carton"
+    ],
     "stream": "blue_box",
     "instructions": "Paper egg cartons go in the Blue Box (or the Green Bin if soiled).",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Egg carton (plastic)",
-    "aliases": ["clear egg carton", "plastic egg container"],
+    "aliases": [
+      "clear egg carton",
+      "plastic egg container"
+    ],
     "stream": "blue_box",
     "instructions": "Clear plastic egg cartons go in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 20
+    "est_weight_g": 20,
+    "verified": false
   },
   {
     "item": "Pizza box (clean parts)",
-    "aliases": ["pizza box lid", "clean pizza box"],
+    "aliases": [
+      "pizza box lid",
+      "clean pizza box"
+    ],
     "stream": "blue_box",
     "instructions": "Tear off the clean lid and sides for the Blue Box. The greasy bottom goes in the Green Bin.",
     "reusable": false,
-    "est_weight_g": 120
+    "est_weight_g": 120,
+    "verified": false
   },
   {
     "item": "Toilet paper roll (cardboard)",
-    "aliases": ["paper towel roll", "cardboard tube"],
+    "aliases": [
+      "paper towel roll",
+      "cardboard tube"
+    ],
     "stream": "blue_box",
     "instructions": "Blue Box.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Spiral-wound can (frozen juice)",
-    "aliases": ["frozen juice can", "refrigerated dough can", "pringles can"],
+    "aliases": [
+      "frozen juice can",
+      "refrigerated dough can",
+      "pringles can"
+    ],
     "stream": "blue_box",
     "instructions": "Blue Box, metal ends included.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Banana peel",
-    "aliases": ["fruit peel", "orange peel", "apple core", "fruit scraps"],
+    "aliases": [
+      "fruit peel",
+      "orange peel",
+      "apple core",
+      "fruit scraps"
+    ],
     "stream": "green_bin",
     "instructions": "All fruit and vegetable scraps go in the Green Bin.",
     "reusable": false,
-    "est_weight_g": 40
+    "est_weight_g": 40,
+    "verified": false
   },
   {
     "item": "Food scraps",
-    "aliases": ["leftovers", "vegetable scraps", "plate scrapings", "rice", "pasta", "food waste"],
+    "aliases": [
+      "leftovers",
+      "vegetable scraps",
+      "plate scrapings",
+      "rice",
+      "pasta",
+      "food waste"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin. Line it with newspaper, a paper bag or a certified compostable bag.",
     "reusable": false,
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Meat & bones",
-    "aliases": ["chicken bones", "meat scraps", "fish", "shellfish shells"],
+    "aliases": [
+      "chicken bones",
+      "meat scraps",
+      "fish",
+      "shellfish shells"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin — meat, bones, fish and shells are all accepted in Markham.",
     "reusable": false,
-    "est_weight_g": 250
+    "est_weight_g": 250,
+    "verified": false
   },
   {
     "item": "Eggshells",
-    "aliases": ["egg shells"],
+    "aliases": [
+      "egg shells"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Dairy",
-    "aliases": ["cheese", "spoiled milk", "yogurt"],
+    "aliases": [
+      "cheese",
+      "spoiled milk",
+      "yogurt"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin. Pour liquids into the Green Bin on absorbent material rather than down the drain.",
     "reusable": false,
-    "est_weight_g": 150
+    "est_weight_g": 150,
+    "verified": false
   },
   {
     "item": "Bread",
-    "aliases": ["stale bread", "baked goods", "pastry", "crackers"],
+    "aliases": [
+      "stale bread",
+      "baked goods",
+      "pastry",
+      "crackers"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin.",
     "reusable": false,
-    "est_weight_g": 80
+    "est_weight_g": 80,
+    "verified": false
   },
   {
     "item": "Coffee grounds & filter",
-    "aliases": ["coffee grounds", "coffee filter", "espresso puck"],
+    "aliases": [
+      "coffee grounds",
+      "coffee filter",
+      "espresso puck"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin, paper filter included.",
     "reusable": false,
-    "est_weight_g": 60
+    "est_weight_g": 60,
+    "verified": false
   },
   {
     "item": "Tea bag",
-    "aliases": ["tea bags", "loose tea leaves"],
+    "aliases": [
+      "tea bags",
+      "loose tea leaves"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin. Remove staples or plastic tags if easy.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Paper towel (used)",
-    "aliases": ["paper towels", "kitchen roll", "soiled paper towel"],
+    "aliases": [
+      "paper towels",
+      "kitchen roll",
+      "soiled paper towel"
+    ],
     "stream": "green_bin",
     "instructions": "Used paper towels go in the Green Bin — unless they have chemicals or cleaning products on them (garbage).",
     "reusable": false,
-    "est_weight_g": 8
+    "est_weight_g": 8,
+    "verified": false
   },
   {
     "item": "Napkin (used)",
-    "aliases": ["paper napkin", "serviette", "soiled napkin"],
+    "aliases": [
+      "paper napkin",
+      "serviette",
+      "soiled napkin"
+    ],
     "stream": "green_bin",
     "instructions": "Used napkins go in the Green Bin.",
     "reusable": false,
-    "est_weight_g": 4
+    "est_weight_g": 4,
+    "verified": false
   },
   {
     "item": "Tissue (used)",
-    "aliases": ["kleenex", "facial tissue"],
+    "aliases": [
+      "kleenex",
+      "facial tissue"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin.",
     "reusable": false,
-    "est_weight_g": 2
+    "est_weight_g": 2,
+    "verified": false
   },
   {
     "item": "Pizza box (greasy parts)",
-    "aliases": ["greasy pizza box", "pizza box bottom", "food-soiled cardboard"],
+    "aliases": [
+      "greasy pizza box",
+      "pizza box bottom",
+      "food-soiled cardboard"
+    ],
     "stream": "green_bin",
     "instructions": "The greasy, food-soiled bottom of a pizza box goes in the Green Bin. Clean parts go in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 120
+    "est_weight_g": 120,
+    "verified": false
   },
   {
     "item": "Paper plate (soiled)",
-    "aliases": ["paper plate", "paper bowl", "food-soiled paper"],
+    "aliases": [
+      "paper plate",
+      "paper bowl",
+      "food-soiled paper"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin. Plastic-coated plates go in the garbage.",
     "reusable": false,
-    "est_weight_g": 15
+    "est_weight_g": 15,
+    "verified": false
   },
   {
     "item": "Diaper",
-    "aliases": ["diapers", "nappy", "sanitary products", "incontinence products"],
+    "aliases": [
+      "diapers",
+      "nappy",
+      "sanitary products",
+      "incontinence products"
+    ],
     "stream": "green_bin",
     "instructions": "Markham accepts diapers and sanitary products in the Green Bin. Wrap them in a bag or paper first.",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Pet waste (bagged)",
-    "aliases": ["dog poop", "cat litter", "kitty litter", "pet waste"],
+    "aliases": [
+      "dog poop",
+      "cat litter",
+      "kitty litter",
+      "pet waste"
+    ],
     "stream": "green_bin",
     "instructions": "Pet waste and litter go in the Green Bin — wrap in newspaper or a certified compostable bag.",
     "reusable": false,
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Houseplant trimmings",
-    "aliases": ["dead houseplant", "flowers", "cut flowers", "plant cuttings"],
+    "aliases": [
+      "dead houseplant",
+      "flowers",
+      "cut flowers",
+      "plant cuttings"
+    ],
     "stream": "green_bin",
     "instructions": "Small amounts of indoor plant material and cut flowers go in the Green Bin. Larger garden material is yard waste.",
     "reusable": false,
-    "est_weight_g": 100
+    "est_weight_g": 100,
+    "verified": false
   },
   {
     "item": "Pumpkin",
-    "aliases": ["jack-o-lantern", "halloween pumpkin", "squash"],
+    "aliases": [
+      "jack-o-lantern",
+      "halloween pumpkin",
+      "squash"
+    ],
     "stream": "green_bin",
     "instructions": "Green Bin — remove candles and decorations first. Large pumpkins can also go out with yard waste.",
     "reusable": false,
-    "est_weight_g": 4000
+    "est_weight_g": 4000,
+    "verified": false
   },
   {
     "item": "Popsicle stick (wood)",
-    "aliases": ["wooden stir stick", "toothpick", "wooden skewer", "chopsticks"],
+    "aliases": [
+      "wooden stir stick",
+      "toothpick",
+      "wooden skewer",
+      "chopsticks"
+    ],
     "stream": "green_bin",
     "instructions": "Small wooden items like stir sticks and chopsticks go in the Green Bin.",
     "reusable": false,
-    "est_weight_g": 2
+    "est_weight_g": 2,
+    "verified": false
   },
   {
     "item": "Black plastic takeout container",
-    "aliases": ["black plastic", "black container", "black takeout tray", "black microwave tray"],
+    "aliases": [
+      "black plastic",
+      "black container",
+      "black takeout tray",
+      "black microwave tray"
+    ],
     "stream": "garbage",
     "instructions": "Black plastic can't be seen by sorting equipment and is not accepted in the Blue Box — it goes in the garbage. Verify on markham.ca.",
     "reusable": false,
-    "est_weight_g": 25
+    "est_weight_g": 25,
+    "verified": false
   },
   {
     "item": "Plastic cutlery",
-    "aliases": ["plastic fork", "plastic spoon", "plastic knife", "disposable cutlery"],
+    "aliases": [
+      "plastic fork",
+      "plastic spoon",
+      "plastic knife",
+      "disposable cutlery"
+    ],
     "stream": "garbage",
     "instructions": "Garbage — too small to sort.",
     "reusable": false,
-    "est_weight_g": 6
+    "est_weight_g": 6,
+    "verified": false
   },
   {
     "item": "Plastic straw",
-    "aliases": ["straw", "drinking straw", "stir stick (plastic)"],
+    "aliases": [
+      "straw",
+      "drinking straw",
+      "stir stick (plastic)"
+    ],
     "stream": "garbage",
     "instructions": "Garbage.",
     "reusable": false,
-    "est_weight_g": 1
+    "est_weight_g": 1,
+    "verified": false
   },
   {
     "item": "Chip bag",
-    "aliases": ["chip bags", "snack bag", "foil-lined bag", "granola bar wrapper"],
+    "aliases": [
+      "chip bags",
+      "snack bag",
+      "foil-lined bag",
+      "granola bar wrapper"
+    ],
     "stream": "garbage",
     "instructions": "Multi-layer foil-lined bags go in the garbage.",
     "reusable": false,
-    "est_weight_g": 8
+    "est_weight_g": 8,
+    "verified": false
   },
   {
     "item": "Candy wrapper",
-    "aliases": ["chocolate bar wrapper", "gum wrapper", "wrapper"],
+    "aliases": [
+      "chocolate bar wrapper",
+      "gum wrapper",
+      "wrapper"
+    ],
     "stream": "garbage",
     "instructions": "Garbage.",
     "reusable": false,
-    "est_weight_g": 2
+    "est_weight_g": 2,
+    "verified": false
   },
   {
     "item": "Coffee pod",
-    "aliases": ["k-cup", "keurig pod", "nespresso capsule", "coffee capsule"],
+    "aliases": [
+      "k-cup",
+      "keurig pod",
+      "nespresso capsule",
+      "coffee capsule"
+    ],
     "stream": "garbage",
     "instructions": "Single-use pods go in the garbage. Nespresso aluminum capsules can be returned through the brand's take-back program.",
     "reusable": false,
-    "est_weight_g": 12
+    "est_weight_g": 12,
+    "verified": false
   },
   {
     "item": "Styrofoam (food-soiled)",
-    "aliases": ["dirty styrofoam", "foam takeout container", "foam clamshell", "used foam cup"],
+    "aliases": [
+      "dirty styrofoam",
+      "foam takeout container",
+      "foam clamshell",
+      "used foam cup"
+    ],
     "stream": "garbage",
     "instructions": "Foam that's been in contact with food goes in the garbage. Only clean foam is accepted at the Recycling Depot.",
     "reusable": false,
-    "est_weight_g": 15
+    "est_weight_g": 15,
+    "verified": false
   },
   {
     "item": "Broken ceramic mug",
-    "aliases": ["broken dish", "ceramic", "broken plate", "porcelain"],
+    "aliases": [
+      "broken dish",
+      "ceramic",
+      "broken plate",
+      "porcelain"
+    ],
     "stream": "garbage",
     "instructions": "Ceramics aren't recyclable — wrap them and put them in the garbage. Intact dishes are reusable.",
     "reusable": false,
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Broken drinking glass",
-    "aliases": ["broken glass", "window glass", "drinking glass", "mirror"],
+    "aliases": [
+      "broken glass",
+      "window glass",
+      "drinking glass",
+      "mirror"
+    ],
     "stream": "garbage",
     "instructions": "Only bottles and jars are Blue Box glass. Wrap broken glassware in paper, label it, and put it in the garbage.",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Light bulb (incandescent)",
-    "aliases": ["incandescent bulb", "halogen bulb", "LED bulb"],
+    "aliases": [
+      "incandescent bulb",
+      "halogen bulb",
+      "LED bulb"
+    ],
     "stream": "garbage",
     "instructions": "Incandescent, halogen and LED bulbs go in the garbage (wrap them). CFLs and fluorescent tubes are hazardous waste.",
     "reusable": false,
-    "est_weight_g": 35
+    "est_weight_g": 35,
+    "verified": false
   },
   {
     "item": "Disposable razor",
-    "aliases": ["razor", "razor blade"],
+    "aliases": [
+      "razor",
+      "razor blade"
+    ],
     "stream": "garbage",
     "instructions": "Garbage. Put loose blades in a sealed container first.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Toothbrush",
-    "aliases": ["plastic toothbrush", "dental floss", "floss container"],
+    "aliases": [
+      "plastic toothbrush",
+      "dental floss",
+      "floss container"
+    ],
     "stream": "garbage",
     "instructions": "Garbage.",
     "reusable": false,
-    "est_weight_g": 15
+    "est_weight_g": 15,
+    "verified": false
   },
   {
     "item": "Pen",
-    "aliases": ["ballpoint pen", "marker", "highlighter", "mechanical pencil"],
+    "aliases": [
+      "ballpoint pen",
+      "marker",
+      "highlighter",
+      "mechanical pencil"
+    ],
     "stream": "garbage",
     "instructions": "Garbage. Some office stores and schools run pen take-back programs.",
     "reusable": false,
-    "est_weight_g": 8
+    "est_weight_g": 8,
+    "verified": false
   },
   {
     "item": "Rubber gloves",
-    "aliases": ["latex gloves", "disposable gloves", "nitrile gloves"],
+    "aliases": [
+      "latex gloves",
+      "disposable gloves",
+      "nitrile gloves"
+    ],
     "stream": "garbage",
     "instructions": "Garbage.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Plastic wrap (cling film)",
-    "aliases": ["cling wrap", "saran wrap", "cling film"],
+    "aliases": [
+      "cling wrap",
+      "saran wrap",
+      "cling film"
+    ],
     "stream": "garbage",
     "instructions": "Cling film goes in the garbage even when clean.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Zip-top bag (dirty)",
-    "aliases": ["ziploc bag", "sandwich bag", "freezer bag"],
+    "aliases": [
+      "ziploc bag",
+      "sandwich bag",
+      "freezer bag"
+    ],
     "stream": "garbage",
     "instructions": "Food-soiled zip-top bags go in the garbage. Clean, dry ones can go with other bagged plastic film in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Receipt (thermal paper)",
-    "aliases": ["receipt", "till receipt"],
+    "aliases": [
+      "receipt",
+      "till receipt"
+    ],
     "stream": "garbage",
     "instructions": "Glossy thermal receipts go in the garbage.",
     "reusable": false,
-    "est_weight_g": 2
+    "est_weight_g": 2,
+    "verified": false
   },
   {
     "item": "Broken toy (plastic)",
-    "aliases": ["broken toy", "plastic toy", "toy"],
+    "aliases": [
+      "broken toy",
+      "plastic toy",
+      "toy"
+    ],
     "stream": "garbage",
     "instructions": "Broken hard plastic toys go in the garbage. Working toys are reusable — post them or donate.",
     "reusable": false,
     "reuse_suggestion": "If it still works, a neighbour with kids will take it.",
-    "est_weight_g": 150
+    "est_weight_g": 150,
+    "verified": false
   },
   {
     "item": "Vacuum dust",
-    "aliases": ["vacuum bag", "dryer lint", "sweepings"],
+    "aliases": [
+      "vacuum bag",
+      "dryer lint",
+      "sweepings"
+    ],
     "stream": "garbage",
     "instructions": "Garbage. (Dryer lint and vacuum contents are not accepted in the Green Bin.)",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Makeup",
-    "aliases": ["cosmetics", "lipstick", "mascara", "makeup container"],
+    "aliases": [
+      "cosmetics",
+      "lipstick",
+      "mascara",
+      "makeup container"
+    ],
     "stream": "garbage",
     "instructions": "Garbage. Empty hard plastic or glass containers can be rinsed for the Blue Box.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Balloon",
-    "aliases": ["balloons", "latex balloon", "mylar balloon", "party decorations"],
+    "aliases": [
+      "balloons",
+      "latex balloon",
+      "mylar balloon",
+      "party decorations"
+    ],
     "stream": "garbage",
     "instructions": "Garbage. Never release balloons outdoors.",
     "reusable": false,
-    "est_weight_g": 5
+    "est_weight_g": 5,
+    "verified": false
   },
   {
     "item": "Kitchen sponge",
-    "aliases": ["sponge", "scrub pad", "steel wool"],
+    "aliases": [
+      "sponge",
+      "scrub pad",
+      "steel wool"
+    ],
     "stream": "garbage",
     "instructions": "Garbage.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Face mask (disposable)",
-    "aliases": ["surgical mask", "disposable mask", "n95"],
+    "aliases": [
+      "surgical mask",
+      "disposable mask",
+      "n95"
+    ],
     "stream": "garbage",
     "instructions": "Garbage — cut the ear loops to protect wildlife.",
     "reusable": false,
-    "est_weight_g": 4
+    "est_weight_g": 4,
+    "verified": false
   },
   {
     "item": "Cigarette butt",
-    "aliases": ["cigarette", "vape", "disposable vape"],
+    "aliases": [
+      "cigarette",
+      "vape",
+      "disposable vape"
+    ],
     "stream": "garbage",
     "instructions": "Butts go in the garbage once fully out. Disposable vapes contain lithium batteries — take those to the Household Hazardous Waste depot.",
     "reusable": false,
-    "est_weight_g": 1
+    "est_weight_g": 1,
+    "verified": false
   },
   {
     "item": "Guitar strings",
-    "aliases": ["strings", "wire"],
+    "aliases": [
+      "strings",
+      "wire"
+    ],
     "stream": "garbage",
     "instructions": "Garbage — too thin to sort as scrap metal.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Jacket",
-    "aliases": ["coat", "winter jacket", "hoodie", "sweater", "blazer", "clothing"],
+    "aliases": [
+      "coat",
+      "winter jacket",
+      "hoodie",
+      "sweater",
+      "blazer",
+      "clothing"
+    ],
     "stream": "textile_bin",
     "instructions": "Textiles in any condition — worn, torn or stained — go in one of Markham's 160+ textile donation bins, never the garbage.",
     "reusable": true,
     "reuse_suggestion": "Still wearable? Post it to the Marketplace so a neighbour can use it.",
-    "est_weight_g": 800
+    "est_weight_g": 800,
+    "verified": false
   },
   {
     "item": "Winter coat",
-    "aliases": ["parka", "puffer jacket", "down jacket", "ski jacket"],
+    "aliases": [
+      "parka",
+      "puffer jacket",
+      "down jacket",
+      "ski jacket"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin. Warm coats in good condition are in high demand at Markham shelters and coat drives each fall.",
     "reusable": true,
     "reuse_suggestion": "Post it — warm coats go fast in October and November.",
-    "est_weight_g": 1200
+    "est_weight_g": 1200,
+    "verified": false
   },
   {
     "item": "T-shirt",
-    "aliases": ["old t-shirt", "shirt", "top", "blouse", "tank top"],
+    "aliases": [
+      "old t-shirt",
+      "shirt",
+      "top",
+      "blouse",
+      "tank top"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin, even if it's stained or has holes — it gets recycled into rags and fibre.",
     "reusable": true,
     "reuse_suggestion": "Wearable shirts can be posted or donated.",
-    "est_weight_g": 150
+    "est_weight_g": 150,
+    "verified": false
   },
   {
     "item": "Jeans",
-    "aliases": ["pants", "trousers", "denim", "shorts", "leggings"],
+    "aliases": [
+      "pants",
+      "trousers",
+      "denim",
+      "shorts",
+      "leggings"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin — any condition.",
     "reusable": true,
     "reuse_suggestion": "Good-condition jeans are always wanted.",
-    "est_weight_g": 600
+    "est_weight_g": 600,
+    "verified": false
   },
   {
     "item": "Socks (even single)",
-    "aliases": ["socks", "single sock", "underwear", "tights", "stockings"],
+    "aliases": [
+      "socks",
+      "single sock",
+      "underwear",
+      "tights",
+      "stockings"
+    ],
     "stream": "textile_bin",
     "instructions": "Even single socks and worn underwear go in the textile bin — they're recycled as fibre.",
     "reusable": false,
-    "est_weight_g": 40
+    "est_weight_g": 40,
+    "verified": false
   },
   {
     "item": "Shoes (pair)",
-    "aliases": ["shoes", "sneakers", "running shoes", "boots", "sandals", "heels"],
+    "aliases": [
+      "shoes",
+      "sneakers",
+      "running shoes",
+      "boots",
+      "sandals",
+      "heels"
+    ],
     "stream": "textile_bin",
     "instructions": "Tie the pair together and place in a textile donation bin — any condition.",
     "reusable": true,
     "reuse_suggestion": "Wearable shoes can be posted on the Marketplace.",
-    "est_weight_g": 700
+    "est_weight_g": 700,
+    "verified": false
   },
   {
     "item": "Bedsheets",
-    "aliases": ["sheets", "pillowcase", "duvet cover", "blanket", "comforter", "linens"],
+    "aliases": [
+      "sheets",
+      "pillowcase",
+      "duvet cover",
+      "blanket",
+      "comforter",
+      "linens"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin. Animal shelters also take clean old blankets and towels.",
     "reusable": true,
     "reuse_suggestion": "Clean linens are welcome on the Marketplace.",
-    "est_weight_g": 900
+    "est_weight_g": 900,
+    "verified": false
   },
   {
     "item": "Towels",
-    "aliases": ["towel", "bath towel", "tea towel", "washcloth"],
+    "aliases": [
+      "towel",
+      "bath towel",
+      "tea towel",
+      "washcloth"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin, any condition.",
     "reusable": true,
     "reuse_suggestion": "Animal shelters and the Marketplace both want clean towels.",
-    "est_weight_g": 400
+    "est_weight_g": 400,
+    "verified": false
   },
   {
     "item": "Curtains",
-    "aliases": ["drapes", "tablecloth", "fabric", "scrap fabric", "yarn"],
+    "aliases": [
+      "drapes",
+      "tablecloth",
+      "fabric",
+      "scrap fabric",
+      "yarn"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin. Remove metal hooks and rings first.",
     "reusable": true,
     "reuse_suggestion": "Post them — curtains are a common Marketplace request.",
-    "est_weight_g": 1000
+    "est_weight_g": 1000,
+    "verified": false
   },
   {
     "item": "Handbag",
-    "aliases": ["purse", "bag", "wallet", "belt", "tote bag"],
+    "aliases": [
+      "purse",
+      "bag",
+      "wallet",
+      "belt",
+      "tote bag"
+    ],
     "stream": "textile_bin",
     "instructions": "Bags, belts and wallets are accepted in textile donation bins.",
     "reusable": true,
     "reuse_suggestion": "Bags in good shape do well on the Marketplace.",
-    "est_weight_g": 400
+    "est_weight_g": 400,
+    "verified": false
   },
   {
     "item": "Backpack",
-    "aliases": ["school bag", "knapsack", "gym bag", "duffel bag", "laptop bag"],
+    "aliases": [
+      "school bag",
+      "knapsack",
+      "gym bag",
+      "duffel bag",
+      "laptop bag"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin — empty it first. Working bags are better reused.",
     "reusable": true,
     "reuse_suggestion": "Post it — students and newcomers look for bags.",
-    "est_weight_g": 600
+    "est_weight_g": 600,
+    "verified": false
   },
   {
     "item": "Stuffed animal",
-    "aliases": ["plush toy", "teddy bear", "soft toy"],
+    "aliases": [
+      "plush toy",
+      "teddy bear",
+      "soft toy"
+    ],
     "stream": "textile_bin",
     "instructions": "Clean stuffed toys are accepted in textile donation bins.",
     "reusable": true,
     "reuse_suggestion": "Clean plush toys are easy to give away on the Marketplace.",
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Hat",
-    "aliases": ["cap", "toque", "beanie", "scarf", "gloves", "mittens"],
+    "aliases": [
+      "cap",
+      "toque",
+      "beanie",
+      "scarf",
+      "gloves",
+      "mittens"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin.",
     "reusable": true,
     "reuse_suggestion": "Winter accessories are wanted every fall.",
-    "est_weight_g": 80
+    "est_weight_g": 80,
+    "verified": false
   },
   {
     "item": "Kids clothes",
-    "aliases": ["baby clothes", "children's clothing", "onesie", "kids clothing"],
+    "aliases": [
+      "baby clothes",
+      "children's clothing",
+      "onesie",
+      "kids clothing"
+    ],
     "stream": "textile_bin",
     "instructions": "Textile donation bin, any condition.",
     "reusable": true,
     "reuse_suggestion": "Outgrown kids' clothes are the most-requested Marketplace item.",
-    "est_weight_g": 400
+    "est_weight_g": 400,
+    "verified": false
   },
   {
     "item": "Styrofoam (clean)",
-    "aliases": ["styrofoam", "polystyrene", "foam tray", "meat tray", "foam packaging", "foam cup", "packing foam", "foam block"],
+    "aliases": [
+      "styrofoam",
+      "polystyrene",
+      "foam tray",
+      "meat tray",
+      "foam packaging",
+      "foam cup",
+      "packing foam",
+      "foam block"
+    ],
     "stream": "recycling_depot",
     "instructions": "Clean Styrofoam is NOT accepted in the Blue Box in Markham. Take it to a Markham Recycling Depot (free for residents).",
     "reusable": false,
-    "est_weight_g": 20
+    "est_weight_g": 20,
+    "verified": false
   },
   {
     "item": "Scrap metal",
-    "aliases": ["metal", "metal pipe", "metal shelf", "bike frame", "metal bed frame", "steel", "copper"],
+    "aliases": [
+      "metal",
+      "metal pipe",
+      "metal shelf",
+      "bike frame",
+      "metal bed frame",
+      "steel",
+      "copper"
+    ],
     "stream": "recycling_depot",
     "instructions": "Take scrap metal to a Markham Recycling Depot, or book the monthly curbside scrap metal pickup by appointment.",
     "reusable": false,
-    "est_weight_g": 2500
+    "est_weight_g": 2500,
+    "verified": false
   },
   {
     "item": "Pots and pans (metal)",
-    "aliases": ["frying pan", "pot", "saucepan", "cookware", "baking tray", "wok"],
+    "aliases": [
+      "frying pan",
+      "pot",
+      "saucepan",
+      "cookware",
+      "baking tray",
+      "wok"
+    ],
     "stream": "recycling_depot",
     "instructions": "Worn-out metal cookware goes to the Recycling Depot as scrap metal, not the Blue Box. Usable cookware is reusable.",
     "reusable": true,
     "reuse_suggestion": "Still cooks fine? Post it to the Marketplace.",
-    "est_weight_g": 1200
+    "est_weight_g": 1200,
+    "verified": false
   },
   {
     "item": "Small appliance",
-    "aliases": ["toaster", "kettle", "blender", "coffee maker", "microwave", "vacuum", "iron", "hair dryer"],
+    "aliases": [
+      "toaster",
+      "kettle",
+      "blender",
+      "coffee maker",
+      "microwave",
+      "vacuum",
+      "iron",
+      "hair dryer"
+    ],
     "stream": "recycling_depot",
     "instructions": "Small appliances are accepted at Markham Recycling Depots (scrap metal / electronics area). Working ones are better reused.",
     "reusable": true,
     "reuse_suggestion": "Working appliances are quick to give away on the Marketplace.",
-    "est_weight_g": 2000
+    "est_weight_g": 2000,
+    "verified": false
   },
   {
     "item": "Bicycle",
-    "aliases": ["bike", "broken bike", "kids bike", "scooter"],
+    "aliases": [
+      "bike",
+      "broken bike",
+      "kids bike",
+      "scooter"
+    ],
     "stream": "recycling_depot",
     "instructions": "Unrepairable bikes go to the Recycling Depot as scrap metal. Rideable bikes should be reused — many Markham groups refurbish them.",
     "reusable": true,
     "reuse_suggestion": "Post it — bikes are claimed within hours.",
-    "est_weight_g": 12000
+    "est_weight_g": 12000,
+    "verified": false
   },
   {
     "item": "Wood (untreated)",
-    "aliases": ["lumber", "scrap wood", "wood boards", "pallet", "plywood"],
+    "aliases": [
+      "lumber",
+      "scrap wood",
+      "wood boards",
+      "pallet",
+      "plywood"
+    ],
     "stream": "recycling_depot",
     "instructions": "Clean, untreated wood goes to a Markham Recycling Depot. Painted or pressure-treated wood is handled separately — ask at the depot.",
     "reusable": false,
-    "est_weight_g": 5000
+    "est_weight_g": 5000,
+    "verified": false
   },
   {
     "item": "Drywall",
-    "aliases": ["gypsum board", "plaster", "renovation debris", "tiles", "bricks"],
+    "aliases": [
+      "gypsum board",
+      "plaster",
+      "renovation debris",
+      "tiles",
+      "bricks"
+    ],
     "stream": "recycling_depot",
     "instructions": "Renovation materials are not collected curbside — bring them to a Markham Recycling Depot (fees may apply for large loads).",
     "reusable": false,
-    "est_weight_g": 10000
+    "est_weight_g": 10000,
+    "verified": false
   },
   {
     "item": "Rigid plastic (large)",
-    "aliases": ["laundry basket", "plastic bin", "plastic lawn chair", "storage tote", "plastic hanger"],
+    "aliases": [
+      "laundry basket",
+      "plastic bin",
+      "plastic lawn chair",
+      "storage tote",
+      "plastic hanger"
+    ],
     "stream": "recycling_depot",
     "instructions": "Large rigid plastics aren't Blue Box items — take them to a Markham Recycling Depot. Verify on markham.ca.",
     "reusable": true,
     "reuse_suggestion": "Storage bins and baskets in good shape are easy to give away.",
-    "est_weight_g": 800
+    "est_weight_g": 800,
+    "verified": false
   },
   {
     "item": "Plastic plant pot",
-    "aliases": ["nursery pot", "plant pot", "seedling tray", "flower pot"],
+    "aliases": [
+      "nursery pot",
+      "plant pot",
+      "seedling tray",
+      "flower pot"
+    ],
     "stream": "recycling_depot",
     "instructions": "Plastic plant pots are not accepted in the Blue Box. Take them to a Recycling Depot, or return them to a garden centre that collects them.",
     "reusable": true,
     "reuse_suggestion": "Gardeners on the Marketplace will take stacks of pots.",
-    "est_weight_g": 50
+    "est_weight_g": 50,
+    "verified": false
   },
   {
     "item": "Household battery",
-    "aliases": ["battery", "batteries", "AA battery", "AAA battery", "9V battery", "button cell", "rechargeable battery"],
+    "aliases": [
+      "battery",
+      "batteries",
+      "AA battery",
+      "AAA battery",
+      "9V battery",
+      "button cell",
+      "rechargeable battery"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Never put batteries in the garbage or Blue Box. Drop them at Markham's Household Hazardous Waste & Electronics depot or a battery collection point.",
     "reusable": false,
-    "est_weight_g": 24
+    "est_weight_g": 24,
+    "verified": false
   },
   {
     "item": "Lithium battery / power bank",
-    "aliases": ["power bank", "lithium battery", "laptop battery", "e-bike battery", "vape battery"],
+    "aliases": [
+      "power bank",
+      "lithium battery",
+      "laptop battery",
+      "e-bike battery",
+      "vape battery"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Lithium batteries can start fires in trucks and sorting plants. Tape the terminals and bring them to the Household Hazardous Waste depot.",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Car battery",
-    "aliases": ["lead-acid battery", "vehicle battery", "motorcycle battery"],
+    "aliases": [
+      "lead-acid battery",
+      "vehicle battery",
+      "motorcycle battery"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot. Most auto parts stores will also take them back.",
     "reusable": false,
-    "est_weight_g": 18000
+    "est_weight_g": 18000,
+    "verified": false
   },
   {
     "item": "Smartphone (dead)",
-    "aliases": ["cell phone", "mobile phone", "old phone", "broken phone", "dead phone", "iphone", "android phone"],
+    "aliases": [
+      "cell phone",
+      "mobile phone",
+      "old phone",
+      "broken phone",
+      "dead phone",
+      "iphone",
+      "android phone"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Small electronics go to the Household Hazardous Waste & Electronics depot, not the garbage. Wipe your data first.",
     "reusable": false,
     "reuse_suggestion": "If it still powers on, post it to the Marketplace instead.",
-    "est_weight_g": 180
+    "est_weight_g": 180,
+    "verified": false
   },
   {
     "item": "Laptop",
-    "aliases": ["computer", "notebook computer", "tablet", "ipad", "chromebook"],
+    "aliases": [
+      "computer",
+      "notebook computer",
+      "tablet",
+      "ipad",
+      "chromebook"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Electronics depot — never the garbage. Remove or wipe the drive first.",
     "reusable": true,
     "reuse_suggestion": "Working laptops are hugely wanted — post it or donate to a refurbisher.",
-    "est_weight_g": 1800
+    "est_weight_g": 1800,
+    "verified": false
   },
   {
     "item": "Television",
-    "aliases": ["tv", "flat screen", "old tv", "crt tv"],
+    "aliases": [
+      "tv",
+      "flat screen",
+      "old tv",
+      "crt tv"
+    ],
     "stream": "hazardous_depot",
     "instructions": "TVs go to the Household Hazardous Waste & Electronics depot. Working TVs are reusable.",
     "reusable": true,
     "reuse_suggestion": "Working TVs get claimed fast on the Marketplace.",
-    "est_weight_g": 9000
+    "est_weight_g": 9000,
+    "verified": false
   },
   {
     "item": "Computer monitor",
-    "aliases": ["monitor", "display", "imac", "desktop computer", "pc tower"],
+    "aliases": [
+      "monitor",
+      "display",
+      "imac",
+      "desktop computer",
+      "pc tower"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Electronics depot. Wipe any drives first.",
     "reusable": true,
     "reuse_suggestion": "Working monitors are a common Marketplace request.",
-    "est_weight_g": 4000
+    "est_weight_g": 4000,
+    "verified": false
   },
   {
     "item": "Printer",
-    "aliases": ["inkjet printer", "laser printer", "scanner", "fax machine"],
+    "aliases": [
+      "inkjet printer",
+      "laser printer",
+      "scanner",
+      "fax machine"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Electronics depot. Remove ink cartridges — those can go back to the retailer.",
     "reusable": true,
     "reuse_suggestion": "Working printers are easy to give away.",
-    "est_weight_g": 6000
+    "est_weight_g": 6000,
+    "verified": false
   },
   {
     "item": "Cables & chargers",
-    "aliases": ["charger", "usb cable", "phone charger", "extension cord", "power cord", "hdmi cable", "earbuds"],
+    "aliases": [
+      "charger",
+      "usb cable",
+      "phone charger",
+      "extension cord",
+      "power cord",
+      "hdmi cable",
+      "earbuds"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Cords, chargers and earbuds are e-waste — Household Hazardous Waste & Electronics depot.",
     "reusable": true,
     "reuse_suggestion": "Bundle working chargers and post them.",
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Headphones (dead)",
-    "aliases": ["broken headphones", "speaker", "bluetooth speaker", "game console", "camera", "remote control"],
+    "aliases": [
+      "broken headphones",
+      "speaker",
+      "bluetooth speaker",
+      "game console",
+      "camera",
+      "remote control"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Electronics depot. Working audio gear and consoles should be reused instead.",
     "reusable": true,
     "reuse_suggestion": "Working headphones, speakers and consoles are quick to give away.",
-    "est_weight_g": 250
+    "est_weight_g": 250,
+    "verified": false
   },
   {
     "item": "Paint (latex)",
-    "aliases": ["paint", "paint can", "latex paint", "wall paint", "primer"],
+    "aliases": [
+      "paint",
+      "paint can",
+      "latex paint",
+      "wall paint",
+      "primer"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Leftover paint goes to the Household Hazardous Waste depot (or a paint retailer take-back). Completely dry, empty cans can go in the garbage.",
     "reusable": true,
     "reuse_suggestion": "Half-full cans of a usable colour get taken on the Marketplace.",
-    "est_weight_g": 3500
+    "est_weight_g": 3500,
+    "verified": false
   },
   {
     "item": "Paint (oil-based)",
-    "aliases": ["oil paint", "stain", "varnish", "wood finish", "paint thinner", "solvent"],
+    "aliases": [
+      "oil paint",
+      "stain",
+      "varnish",
+      "wood finish",
+      "paint thinner",
+      "solvent"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot only. Never pour down a drain.",
     "reusable": false,
-    "est_weight_g": 3000
+    "est_weight_g": 3000,
+    "verified": false
   },
   {
     "item": "Propane cylinder",
-    "aliases": ["propane tank", "bbq tank", "camping propane", "butane canister"],
+    "aliases": [
+      "propane tank",
+      "bbq tank",
+      "camping propane",
+      "butane canister"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot. Never the garbage or Blue Box — tanks explode in trucks. Many retailers run exchange programs.",
     "reusable": false,
-    "est_weight_g": 8000
+    "est_weight_g": 8000,
+    "verified": false
   },
   {
     "item": "Fluorescent tube",
-    "aliases": ["fluorescent light", "cfl bulb", "compact fluorescent", "cfl", "neon tube"],
+    "aliases": [
+      "fluorescent light",
+      "cfl bulb",
+      "compact fluorescent",
+      "cfl",
+      "neon tube"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Contains mercury — Household Hazardous Waste depot. Keep intact.",
     "reusable": false,
-    "est_weight_g": 150
+    "est_weight_g": 150,
+    "verified": false
   },
   {
     "item": "Motor oil",
-    "aliases": ["used oil", "engine oil", "oil filter", "antifreeze", "brake fluid", "transmission fluid"],
+    "aliases": [
+      "used oil",
+      "engine oil",
+      "oil filter",
+      "antifreeze",
+      "brake fluid",
+      "transmission fluid"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot, in a sealed container. Many service stations also accept used oil.",
     "reusable": false,
-    "est_weight_g": 4000
+    "est_weight_g": 4000,
+    "verified": false
   },
   {
     "item": "Pesticide",
-    "aliases": ["weed killer", "fertilizer", "herbicide", "insecticide", "garden chemicals"],
+    "aliases": [
+      "weed killer",
+      "fertilizer",
+      "herbicide",
+      "insecticide",
+      "garden chemicals"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot — in the original container if possible.",
     "reusable": false,
-    "est_weight_g": 1500
+    "est_weight_g": 1500,
+    "verified": false
   },
   {
     "item": "Cleaning chemicals",
-    "aliases": ["bleach", "drain cleaner", "oven cleaner", "ammonia", "pool chemicals", "chemicals"],
+    "aliases": [
+      "bleach",
+      "drain cleaner",
+      "oven cleaner",
+      "ammonia",
+      "pool chemicals",
+      "chemicals"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Unused chemicals go to the Household Hazardous Waste depot. Empty, rinsed containers go in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 1000
+    "est_weight_g": 1000,
+    "verified": false
   },
   {
     "item": "Aerosol can (not empty)",
-    "aliases": ["full aerosol", "spray paint", "bug spray", "wd-40"],
+    "aliases": [
+      "full aerosol",
+      "spray paint",
+      "bug spray",
+      "wd-40"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Cans that still spray are hazardous waste — take them to the depot. Empty ones go in the Blue Box.",
     "reusable": false,
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Nail polish",
-    "aliases": ["nail polish remover", "acetone", "perfume"],
+    "aliases": [
+      "nail polish remover",
+      "acetone",
+      "perfume"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot.",
     "reusable": false,
-    "est_weight_g": 50
+    "est_weight_g": 50,
+    "verified": false
   },
   {
     "item": "Fire extinguisher",
-    "aliases": ["extinguisher"],
+    "aliases": [
+      "extinguisher"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste depot. Never the garbage.",
     "reusable": false,
-    "est_weight_g": 3000
+    "est_weight_g": 3000,
+    "verified": false
   },
   {
     "item": "Smoke detector",
-    "aliases": ["smoke alarm", "carbon monoxide detector", "co detector"],
+    "aliases": [
+      "smoke alarm",
+      "carbon monoxide detector",
+      "co detector"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Household Hazardous Waste & Electronics depot (some contain a small radioactive source).",
     "reusable": false,
-    "est_weight_g": 200
+    "est_weight_g": 200,
+    "verified": false
   },
   {
     "item": "Thermometer (mercury)",
-    "aliases": ["mercury thermometer", "thermostat", "mercury"],
+    "aliases": [
+      "mercury thermometer",
+      "thermostat",
+      "mercury"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Mercury items go to the Household Hazardous Waste depot — keep them intact and sealed in a bag.",
     "reusable": false,
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Lighter fluid",
-    "aliases": ["lighter", "bbq lighter", "charcoal starter", "gasoline", "kerosene"],
+    "aliases": [
+      "lighter",
+      "bbq lighter",
+      "charcoal starter",
+      "gasoline",
+      "kerosene"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Flammable liquids and lighters go to the Household Hazardous Waste depot.",
     "reusable": false,
-    "est_weight_g": 500
+    "est_weight_g": 500,
+    "verified": false
   },
   {
     "item": "Leaves",
-    "aliases": ["fallen leaves", "yard leaves", "garden waste"],
+    "aliases": [
+      "fallen leaves",
+      "yard leaves",
+      "garden waste"
+    ],
     "stream": "yard_waste",
     "instructions": "Kraft paper yard waste bags or a rigid open container labelled yard waste — out on your yard waste collection day (spring to fall). No plastic bags.",
     "reusable": false,
-    "est_weight_g": 3000
+    "est_weight_g": 3000,
+    "verified": false
   },
   {
     "item": "Branches (bundled)",
-    "aliases": ["branches", "twigs", "brush", "hedge trimmings", "tree branches"],
+    "aliases": [
+      "branches",
+      "twigs",
+      "brush",
+      "hedge trimmings",
+      "tree branches"
+    ],
     "stream": "yard_waste",
     "instructions": "Bundle with string, under 1.2 m long and 7.5 cm thick, and put out on yard waste day.",
     "reusable": false,
-    "est_weight_g": 5000
+    "est_weight_g": 5000,
+    "verified": false
   },
   {
     "item": "Grass clippings",
-    "aliases": ["grass", "lawn clippings"],
+    "aliases": [
+      "grass",
+      "lawn clippings"
+    ],
     "stream": "yard_waste",
     "instructions": "Markham doesn't collect grass clippings — leave them on the lawn (grasscycling) or compost them at home.",
     "reusable": false,
-    "est_weight_g": 2000
+    "est_weight_g": 2000,
+    "verified": false
   },
   {
     "item": "Christmas tree",
-    "aliases": ["xmas tree", "real christmas tree", "holiday tree"],
+    "aliases": [
+      "xmas tree",
+      "real christmas tree",
+      "holiday tree"
+    ],
     "stream": "yard_waste",
     "instructions": "Remove all decorations, lights and the stand, then put it at the curb during January tree collection.",
     "reusable": false,
-    "est_weight_g": 9000
+    "est_weight_g": 9000,
+    "verified": false
   },
   {
     "item": "Garden weeds",
-    "aliases": ["weeds", "dead plants", "garden plants", "soil"],
+    "aliases": [
+      "weeds",
+      "dead plants",
+      "garden plants",
+      "soil"
+    ],
     "stream": "yard_waste",
     "instructions": "Plants go out as yard waste. Shake off soil — dirt and sod aren't accepted.",
     "reusable": false,
-    "est_weight_g": 1500
+    "est_weight_g": 1500,
+    "verified": false
   },
   {
     "item": "Mattress",
-    "aliases": ["mattress", "box spring", "bed", "futon"],
+    "aliases": [
+      "mattress",
+      "box spring",
+      "bed",
+      "futon"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Book a large-item pickup with the City of Markham or bring it to a depot. Mattresses must be wrapped in plastic for collection — verify current rules on markham.ca.",
     "reusable": false,
-    "est_weight_g": 25000
+    "est_weight_g": 25000,
+    "verified": false
   },
   {
     "item": "Sofa",
-    "aliases": ["couch", "loveseat", "sectional", "armchair", "recliner"],
+    "aliases": [
+      "couch",
+      "loveseat",
+      "sectional",
+      "armchair",
+      "recliner"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Book a large-item pickup with the City of Markham. If it's clean and intact, give it away instead.",
     "reusable": true,
     "reuse_suggestion": "Post it — sofas are one of the most-claimed Marketplace items.",
-    "est_weight_g": 40000
+    "est_weight_g": 40000,
+    "verified": false
   },
   {
     "item": "Dining table",
-    "aliases": ["table", "coffee table", "desk", "kitchen table", "side table"],
+    "aliases": [
+      "table",
+      "coffee table",
+      "desk",
+      "kitchen table",
+      "side table"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Large-item pickup by appointment, or take wood furniture to a depot. Usable tables should be reused.",
     "reusable": true,
     "reuse_suggestion": "Post it with the dimensions — tables go quickly.",
-    "est_weight_g": 20000
+    "est_weight_g": 20000,
+    "verified": false
   },
   {
     "item": "Chair",
-    "aliases": ["dining chair", "office chair", "stool", "wooden chair", "bar stool"],
+    "aliases": [
+      "dining chair",
+      "office chair",
+      "stool",
+      "wooden chair",
+      "bar stool"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Broken chairs go out with large-item pickup (metal ones can go to the depot as scrap). Usable chairs are reusable.",
     "reusable": true,
     "reuse_suggestion": "A sturdy chair is an easy Marketplace give-away.",
-    "est_weight_g": 6000
+    "est_weight_g": 6000,
+    "verified": false
   },
   {
     "item": "Dresser",
-    "aliases": ["chest of drawers", "wardrobe", "bookshelf", "cabinet", "nightstand", "shelving unit"],
+    "aliases": [
+      "chest of drawers",
+      "wardrobe",
+      "bookshelf",
+      "cabinet",
+      "nightstand",
+      "shelving unit"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Book a large-item pickup. Solid wood pieces are worth posting first.",
     "reusable": true,
     "reuse_suggestion": "Post it — dressers and shelves are always in demand.",
-    "est_weight_g": 30000
+    "est_weight_g": 30000,
+    "verified": false
   },
   {
     "item": "Carpet (rolled)",
-    "aliases": ["carpet", "rug", "area rug", "underpad"],
+    "aliases": [
+      "carpet",
+      "rug",
+      "area rug",
+      "underpad"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Roll and tie in lengths under 1.2 m for large-item pickup. Clean rugs are reusable.",
     "reusable": true,
     "reuse_suggestion": "Clean area rugs can be posted.",
-    "est_weight_g": 8000
+    "est_weight_g": 8000,
+    "verified": false
   },
   {
     "item": "Refrigerator",
-    "aliases": ["fridge", "freezer", "air conditioner", "dehumidifier"],
+    "aliases": [
+      "fridge",
+      "freezer",
+      "air conditioner",
+      "dehumidifier"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Appliances with refrigerants need a scheduled appliance/metal pickup from the City so the gas can be removed safely. Working units are reusable.",
     "reusable": true,
     "reuse_suggestion": "Working fridges and ACs go fast — post them.",
-    "est_weight_g": 70000
+    "est_weight_g": 70000,
+    "verified": false
   },
   {
     "item": "Washing machine",
-    "aliases": ["washer", "dryer", "dishwasher", "stove", "oven", "large appliance"],
+    "aliases": [
+      "washer",
+      "dryer",
+      "dishwasher",
+      "stove",
+      "oven",
+      "large appliance"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Book the City's large appliance / scrap metal pickup, or bring it to a Recycling Depot.",
     "reusable": true,
     "reuse_suggestion": "If it works, someone will haul it away for you — post it.",
-    "est_weight_g": 65000
+    "est_weight_g": 65000,
+    "verified": false
   },
   {
     "item": "Treadmill",
-    "aliases": ["exercise bike", "exercise equipment", "weights", "gym equipment"],
+    "aliases": [
+      "exercise bike",
+      "exercise equipment",
+      "weights",
+      "gym equipment"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Large-item or scrap metal pickup by appointment. Working equipment should be reused.",
     "reusable": true,
     "reuse_suggestion": "Exercise gear is a popular Marketplace give-away.",
-    "est_weight_g": 50000
+    "est_weight_g": 50000,
+    "verified": false
   },
   {
     "item": "Tire",
-    "aliases": ["tires", "car tire", "bike tire", "bicycle tire", "rubber tire", "winter tires"],
+    "aliases": [
+      "tires",
+      "car tire",
+      "bike tire",
+      "bicycle tire",
+      "rubber tire",
+      "winter tires"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Tires are not accepted at Markham depots. Return them to any tire retailer — take-back is free in Ontario.",
     "reusable": false,
-    "est_weight_g": 9000
+    "est_weight_g": 9000,
+    "verified": false
   },
   {
     "item": "Medications",
-    "aliases": ["pills", "expired medication", "prescription drugs", "vitamins", "inhaler"],
+    "aliases": [
+      "pills",
+      "expired medication",
+      "prescription drugs",
+      "vitamins",
+      "inhaler"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Return unused or expired medications to any pharmacy — never flush them or put them in the garbage.",
     "reusable": false,
-    "est_weight_g": 50
+    "est_weight_g": 50,
+    "verified": false
   },
   {
     "item": "Needles & sharps",
-    "aliases": ["syringe", "needles", "lancet", "epipen", "insulin pen"],
+    "aliases": [
+      "syringe",
+      "needles",
+      "lancet",
+      "epipen",
+      "insulin pen"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Put them in a sealed sharps container and return it to a pharmacy. Never in the garbage or Blue Box.",
     "reusable": false,
-    "est_weight_g": 10
+    "est_weight_g": 10,
+    "verified": false
   },
   {
     "item": "Printer ink cartridge",
-    "aliases": ["ink cartridge", "toner cartridge", "toner"],
+    "aliases": [
+      "ink cartridge",
+      "toner cartridge",
+      "toner"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Return to office-supply stores or the manufacturer's mail-back program. Otherwise, electronics depot.",
     "reusable": false,
-    "est_weight_g": 60
+    "est_weight_g": 60,
+    "verified": false
   },
   {
     "item": "Eyeglasses",
-    "aliases": ["glasses", "prescription glasses", "sunglasses", "reading glasses"],
+    "aliases": [
+      "glasses",
+      "prescription glasses",
+      "sunglasses",
+      "reading glasses"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Most optometrists and Lions Club drop boxes collect old glasses for reuse abroad.",
     "reusable": true,
     "reuse_suggestion": "Donate at an optometrist rather than binning.",
-    "est_weight_g": 30
+    "est_weight_g": 30,
+    "verified": false
   },
   {
     "item": "Water filter cartridge",
-    "aliases": ["brita filter", "water filter", "fridge filter"],
+    "aliases": [
+      "brita filter",
+      "water filter",
+      "fridge filter"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Return through the brand's mail-back or in-store recycling program. Otherwise garbage.",
     "reusable": false,
-    "est_weight_g": 80
+    "est_weight_g": 80,
+    "verified": false
   },
   {
     "item": "Reusable shopping bag (worn out)",
-    "aliases": ["reusable bag", "woven bag", "polypropylene bag"],
+    "aliases": [
+      "reusable bag",
+      "woven bag",
+      "polypropylene bag"
+    ],
     "stream": "retailer_takeback",
     "instructions": "Many grocery stores collect worn-out reusable bags. Fabric ones can go in a textile bin.",
     "reusable": false,
-    "est_weight_g": 60
+    "est_weight_g": 60,
+    "verified": false
   },
   {
     "item": "Books",
-    "aliases": ["book", "novel", "textbook", "hardcover", "paperback", "children's books"],
+    "aliases": [
+      "book",
+      "novel",
+      "textbook",
+      "hardcover",
+      "paperback",
+      "children's books"
+    ],
     "stream": "blue_box",
     "instructions": "Paperbacks go in the Blue Box. Hardcovers: remove the cover (garbage) and recycle the pages. Readable books are better donated or given away.",
     "reusable": true,
     "reuse_suggestion": "Post a box of books — the library and Little Free Libraries take them too.",
-    "est_weight_g": 400
+    "est_weight_g": 400,
+    "verified": false
   },
   {
     "item": "Lamp",
-    "aliases": ["floor lamp", "desk lamp", "table lamp", "light fixture"],
+    "aliases": [
+      "floor lamp",
+      "desk lamp",
+      "table lamp",
+      "light fixture"
+    ],
     "stream": "hazardous_depot",
     "instructions": "Broken lamps are electronics — Household Hazardous Waste & Electronics depot. Working lamps are reusable.",
     "reusable": true,
     "reuse_suggestion": "A working lamp is a quick Marketplace give-away.",
-    "est_weight_g": 2500
+    "est_weight_g": 2500,
+    "verified": false
   },
   {
     "item": "Mug (intact)",
-    "aliases": ["mug", "coffee mug", "cup", "dishes", "plates", "glasses set"],
+    "aliases": [
+      "mug",
+      "coffee mug",
+      "cup",
+      "dishes",
+      "plates",
+      "glasses set"
+    ],
     "stream": "garbage",
     "instructions": "Ceramics aren't recyclable, so only bin them when broken. Intact dishes should be reused.",
     "reusable": true,
     "reuse_suggestion": "Post a set of mugs or dishes — newcomers and students want them.",
-    "est_weight_g": 300
+    "est_weight_g": 300,
+    "verified": false
   },
   {
     "item": "Stroller",
-    "aliases": ["baby stroller", "car seat", "crib", "high chair", "baby gear"],
+    "aliases": [
+      "baby stroller",
+      "car seat",
+      "crib",
+      "high chair",
+      "baby gear"
+    ],
     "stream": "bulky_pickup",
     "instructions": "Broken baby gear goes out with large-item pickup (metal frames can go to the depot). Note: expired car seats should not be reused.",
     "reusable": true,
     "reuse_suggestion": "Strollers and cribs in good shape are claimed fast — post them.",
-    "est_weight_g": 9000
+    "est_weight_g": 9000,
+    "verified": false
   },
   {
     "item": "Plant (potted, healthy)",
-    "aliases": ["houseplant", "succulent", "potted plant", "plant"],
+    "aliases": [
+      "houseplant",
+      "succulent",
+      "potted plant",
+      "plant"
+    ],
     "stream": "green_bin",
     "instructions": "Only dead plant material belongs in the Green Bin. A healthy plant should find a new home.",
     "reusable": true,
     "reuse_suggestion": "Post it — houseplants are always wanted.",
-    "est_weight_g": 800
+    "est_weight_g": 800,
+    "verified": false
   }
 ]
