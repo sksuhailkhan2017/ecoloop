@@ -10,23 +10,20 @@ import { MapPinIcon, PlusIcon, SearchIcon } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/Button";
 import { FilterChip } from "@/components/ui/Chip";
 import { PostCardSkeleton } from "@/components/ui/Skeleton";
-import { useToast } from "@/components/ui/Toast";
 import { useSession } from "@/lib/auth";
-import { errorMessage } from "@/lib/async";
 import { useFeed, useUsers } from "@/lib/data/hooks";
-import { DEFAULT_LOCATION, haversineKm, nearestNeighbourhood } from "@/lib/geo";
-import { requestLocation } from "@/lib/geolocation";
+import { NeighbourhoodPicker } from "@/components/NeighbourhoodPicker";
+import { DEFAULT_LOCATION, haversineKm } from "@/lib/geo";
 import { SAMPLE_POSTS } from "@/lib/sample-posts";
 import { CATEGORIES, CATEGORY_META, type Category } from "@/lib/types";
 
 export default function FeedPage() {
-  const { user, mode, updateUser } = useSession();
-  const toast = useToast();
+  const { user, mode } = useSession();
   const feed = useFeed();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "all">("all");
   const [showGone, setShowGone] = useState(false);
-  const [locating, setLocating] = useState(false);
+  const [picker, setPicker] = useState(false);
 
   const here = user?.location ?? DEFAULT_LOCATION;
 
@@ -57,25 +54,6 @@ export default function FeedPage() {
   const givenCount = real.filter((p) => p.status === "picked_up").length;
   const wantedCount = real.reduce((n, p) => n + (p.claimCount ?? 0), 0);
 
-  const updateLocation = async () => {
-    setLocating(true);
-    const r = await requestLocation();
-    if (r.ok) {
-      try {
-        await updateUser({ location: r.loc, neighbourhood: nearestNeighbourhood(r.loc), locationSource: "gps" });
-        toast.success("Location updated", `Showing items near ${nearestNeighbourhood(r.loc)}.`);
-      } catch (err) {
-        toast.error("Couldn't save your location", errorMessage(err));
-      }
-    } else {
-      toast.error(
-        r.reason === "denied" ? "Location is blocked" : "Couldn't get your location",
-        r.reason === "denied" ? "Allow location for this site in your browser settings." : "Still using your last known spot.",
-      );
-    }
-    setLocating(false);
-  };
-
   return (
     <>
       <PageHeader
@@ -86,8 +64,8 @@ export default function FeedPage() {
             <span className="font-medium text-stone-700">{user?.neighbourhood ?? "Markham"}</span>
             <span aria-hidden="true">·</span>
             <span>Markham, ON</span>
-            <button type="button" onClick={updateLocation} disabled={locating} className="ml-1 font-semibold text-emerald-700 hover:underline disabled:opacity-60">
-              {locating ? "Locating…" : "Update location"}
+            <button type="button" onClick={() => setPicker(true)} className="ml-1 font-semibold text-emerald-700 hover:underline">
+              Change area
             </button>
           </span>
         }
@@ -175,6 +153,8 @@ export default function FeedPage() {
           ))}
         </div>
       )}
+
+      <NeighbourhoodPicker open={picker} reason="change" current={user?.neighbourhood} onClose={() => setPicker(false)} onDone={() => setPicker(false)} />
 
       <Link
         href="/posts/new"

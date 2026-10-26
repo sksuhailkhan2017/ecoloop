@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { LiveStatus, PageHeader } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
+import { NeighbourhoodPicker } from "@/components/NeighbourhoodPicker";
 import { PostCard } from "@/components/PostCard";
 import { StatCard } from "@/components/StatCard";
 import { StreamChart } from "@/components/StreamChart";
@@ -33,6 +34,7 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<Tab>("listings");
   const [signingOut, setSigningOut] = useState(false);
   const [linking, setLinking] = useState(false);
+  const [picker, setPicker] = useState(false);
 
   if (!user) return null;
   const ratePct = Math.round(stats.diversionRate * 100);
@@ -89,6 +91,9 @@ export default function ProfilePage() {
               <span aria-hidden="true">·</span>
               <span className="inline-flex items-center gap-1">
                 <MapPinIcon size={14} /> {user.neighbourhood}
+                <button type="button" onClick={() => setPicker(true)} className="ml-1 rounded-md bg-white/15 px-1.5 py-0.5 text-xs font-semibold text-white hover:bg-white/25">
+                  Change my area
+                </button>
               </span>
               <span aria-hidden="true">·</span>
               <span>Member since {formatMonthYear(user.joinedAt)}</span>
@@ -233,6 +238,8 @@ export default function ProfilePage() {
           </ul>
         )}
       </section>
+
+      <NeighbourhoodPicker open={picker} reason="change" current={user.neighbourhood} onClose={() => setPicker(false)} onDone={() => setPicker(false)} />
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200 pt-6">
         <Button variant="ghost" leftIcon={<LogOutIcon />} onClick={() => void onSignOut()} loading={signingOut}>

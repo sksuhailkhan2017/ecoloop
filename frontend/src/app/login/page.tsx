@@ -13,7 +13,8 @@ import { useToast } from "@/components/ui/Toast";
 import { SignInCancelled, useSession } from "@/lib/auth";
 import { errorMessage } from "@/lib/async";
 import { firstName, formatPoints } from "@/lib/format";
-import { DEFAULT_LOCATION, nearestNeighbourhood } from "@/lib/geo";
+import { NeighbourhoodPicker, reasonFor, useSaveLocation, type PickerReason } from "@/components/NeighbourhoodPicker";
+import { nearestNeighbourhood } from "@/lib/geo";
 import { requestLocation } from "@/lib/geolocation";
 
 type Step = "signin" | "location";
@@ -28,6 +29,8 @@ export default function LoginPage() {
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [picker, setPicker] = useState<PickerReason>(null);
+  const saveLocation = useSaveLocation();
 
   const isDemo = session.mode === "demo";
   const loading = session.status === "loading";
@@ -70,33 +73,24 @@ export default function LoginPage() {
     });
   };
 
-  const saveLocation = async (loc: { lat: number; lng: number }, source: "gps" | "default") => {
-    try {
-      await session.updateUser({ location: loc, neighbourhood: nearestNeighbourhood(loc), locationSource: source });
-    } catch (err) {
-      toast.error("Couldn't save your location", errorMessage(err));
-    }
-    router.replace("/feed");
-  };
-
+  // GPS first; when it is denied, unavailable, slow or outside Markham the neighbourhood picker
+  // takes over instead of silently defaulting to the Civic Centre.
   const allowLocation = async () => {
     setLocating(true);
     const r = await requestLocation();
-    if (r.ok) {
-      toast.success("Location on", `Showing items near ${nearestNeighbourhood(r.loc)}.`);
-      await saveLocation(r.loc, "gps");
-    } else {
-      toast.show({
-        title: r.reason === "denied" ? "Location blocked" : "Couldn't get your location",
-        description: "Using Markham Civic Centre instead. You can update it any time from Home.",
-        tone: "info",
-      });
-      await saveLocation(DEFAULT_LOCATION, "default");
+    const why = reasonFor(r);
+    if (r.ok && !why) {
+      const ok = await saveLocation(r.loc, "gps");
+      setLocating(false);
+      if (ok) {
+        toast.success("Location on", `Showing items near ${nearestNeighbourhood(r.loc)}.`);
+        router.replace("/feed");
+      }
+      return;
     }
     setLocating(false);
+    setPicker(why);
   };
-
-  const skipLocation = () => void saveLocation(DEFAULT_LOCATION, "default");
 
   return (
     <div className="min-h-dvh bg-stone-50 lg:grid lg:grid-cols-[1.05fr_1fr]">
@@ -262,7 +256,7 @@ export default function LoginPage() {
                 EcoLoop sorts the marketplace by distance. Your browser will ask for permission — we only keep an approximate point, never a history.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-stone-700">
-                {["See what neighbours are giving away closest to you", "Show how far a pickup is before you ask", "Fall back to Markham Civic Centre if you say no"].map((t) => (
+                {["See what neighbours are giving away closest to you", "Show how far a pickup is before you ask", "Or just pick your neighbourhood — no GPS needed"].map((t) => (
                   <li key={t} className="flex items-start gap-2">
                     <CheckIcon size={16} className="mt-0.5 shrink-0 text-emerald-600" />
                     {t}
@@ -273,14 +267,16 @@ export default function LoginPage() {
                 <Button size="lg" fullWidth onClick={allowLocation} loading={locating} leftIcon={<MapPinIcon />}>
                   Allow location
                 </Button>
-                <Button size="lg" fullWidth variant="ghost" onClick={skipLocation} disabled={locating}>
-                  Skip — use Markham Civic Centre
+                <Button size="lg" fullWidth variant="ghost" onClick={() => setPicker("change")} disabled={locating}>
+                  Choose my area instead
                 </Button>
               </div>
             </>
           )}
         </div>
       </main>
+
+      <NeighbourhoodPicker open={picker !== null} reason={picker} current={session.user?.neighbourhood} onClose={() => setPicker(null)} onDone={() => router.replace("/feed")} />
     </div>
   );
 }
