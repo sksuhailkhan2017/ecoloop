@@ -94,6 +94,7 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <main>
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-emerald-200/50 blur-3xl" />
@@ -242,6 +243,8 @@ export default function LandingPage() {
           )}
         </div>
       </section>
+
+      </main>
 
       <footer className="border-t border-stone-200 py-8 text-center text-sm text-stone-500">
         EcoLoop · GDG Markham civic-tech hackathon · Sorting rules drafted from City of Markham guidance — verify at markham.ca ·{" "}

@@ -160,7 +160,7 @@ export default function FeedPage() {
       <Link
         href="/posts/new"
         aria-label="Give something away"
-        className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/40 transition hover:bg-emerald-700 active:scale-95 md:hidden"
+        className="fixed bottom-24 right-4 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg shadow-emerald-700/40 transition hover:bg-emerald-800 active:scale-95 motion-reduce:active:scale-100 md:hidden"
       >
         <PlusIcon size={26} />
       </Link>

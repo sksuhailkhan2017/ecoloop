@@ -1,4 +1,4 @@
-# Netlify — hosts the Next.js frontend. Site settings → Build: base "frontend" is set here.
+# Netlify hosts the whole app (Next.js in frontend/). Site settings → Build: base "frontend".
 [build]
   base = "frontend"
   command = "npm run build"
@@ -6,10 +6,23 @@
 
 [build.environment]
   NODE_VERSION = "24"
-  # Render backend (Site configuration → Environment variables overrides this).
-  NEXT_PUBLIC_API_URL = "https://ecoloop-backend-7c5l.onrender.com"
-  # Send photos to the backend (Gemini); the UI falls back to the local matcher if it fails.
-  NEXT_PUBLIC_USE_BACKEND_SCAN = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Firebase Auth helper pages served from this domain, so the Google consent screen can say
+# "ecoloopmarkham.netlify.app" instead of "<project>.firebaseapp.com" and the redirect sign-in
+# fallback works on iOS. To activate: set NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN to your Netlify domain
+# in Site configuration → Environment variables, and add that domain under
+# Firebase console → Authentication → Settings → Authorized domains.
+[[redirects]]
+  from = "/__/auth/*"
+  to = "https://ecoloop-97b86.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/__/firebase/*"
+  to = "https://ecoloop-97b86.firebaseapp.com/__/firebase/:splat"
+  status = 200
+  force = true

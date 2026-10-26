@@ -2,7 +2,7 @@
 
 > **Instructions to the coding agent:** You are building a complete, deployable web app for a 24-hour civic-tech hackathon (GDG Markham, waste-reduction track). Read this whole file first, then build it **phase by phase in the order in Section 10**. Working beats perfect. After each phase, run the app and confirm that phase's acceptance checks before moving on. Do not stop to ask clarifying questions — make a reasonable choice, leave a `// TODO:` comment, and keep going. Mobile-first: everything must look right at 390px width.
 
-> **Repo-layout note:** this repository splits the spec's single Next.js app into `frontend/` (Next.js UI), `backend/` (Express API with Firebase Admin + Gemini) and `python/` (data tooling). Section 7's API routes live in `backend/src/routes/`, not in Next.js `app/api/`. See the root `README.md`.
+> **Repo-layout note:** this spec was written before the build. The shipped app is a single Next.js app in `frontend/` (the Express backend was removed after the hackathon); see **§13 What changed after the hackathon** and the root `README.md` for what actually runs.
 
 ---
 
@@ -329,3 +329,25 @@ Prepare demo items: Styrofoam tray, coffee cup, a jacket, a dead phone, a batter
 ## 12. Out of scope (do not build)
 
 In-app chat, payments, business-side redemption portal, push notifications, moderation, admin panel, native mobile, vector database, offline mode. If something here seems needed, leave a `// TODO` and move on.
+
+---
+
+## 13. What changed after the hackathon
+
+The hackathon build split the app into a Next.js frontend and an Express backend on Render's free
+tier, and kept the marketplace in each browser's localStorage. The "polish" pass (October 2026)
+made every advertised feature work on free hosting. Differences from the sections above:
+
+| Spec said | Shipped |
+|---|---|
+| Express backend with Firebase Admin; all writes server-side | **No backend.** Firestore client SDK with `firestore.rules`; points are client-computed and rule-bounded (see README → Known limits). |
+| Firebase Storage for photos | **Cloudinary unsigned uploads** (Storage needs the paid Blaze plan on new projects). Only the `secure_url` is stored. |
+| `/api/scan` on Express | **Next.js route handler** (`src/app/api/scan/route.ts`, Node runtime). Verifies the Firebase ID token via the Identity Toolkit REST API, rate-limits per uid, runs Gemini within an 8 s budget (Netlify functions stop at 10 s) and returns `{ fallback: true }` on any failure so the UI falls back to the local rules matcher + "help us identify" picker. Lite Gemini models first; rules sent in compact form. |
+| Google + anonymous sign-in at `/login` | Same, plus a one-tap **"Try it — no sign-up"** on the landing page, in-place **guest → Google linking** (same uid, points kept), and a privacy page. |
+| Geolocation once, default to the Civic Centre | Geolocation first; a **neighbourhood picker** (11 areas) whenever location is denied, unavailable, slow or outside Markham, also reachable from the feed and Profile. `locationSource` is stored on the profile. |
+| Points: +5 log / +5 post / +25 giver / +15 receiver / streaks | Same values, plus **anti-farming**: handover points need both accounts Google-linked (enforced in rules), the same pair earns at most once per 30 days, 3 handovers given and 3 received per day, 5 handover credits per rolling week, 50 log points and 3 post bonuses per day. Redeeming needs a Google account. |
+| Seeded demo users and posts | **No seed data in production.** Two static, badged "Sample listing" cards show until real posts exist. Demo mode (no Firebase config) still seeds fictional neighbours for local development. |
+| `recharts` on the profile | Still there, loaded with `next/dynamic` only when there is data. |
+| — | **Motion**: 180 ms page transitions, staggered card entrances, points count-up, a first-login walkthrough; all respect `prefers-reduced-motion`. |
+| ~120 rules, verified before demo | 146 rules, each flagged `"verified": false` until checked against markham.ca "What Goes Where". `python/scripts/validate_rules.py` reports the count. |
+| Deploy on Vercel + a Node host | **Netlify only** (`netlify.toml`), free tier. |

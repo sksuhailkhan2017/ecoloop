@@ -1,12 +1,12 @@
 # python/ — data tooling
 
 Offline helpers for the shared `data/` folder. Nothing here runs in production; the app itself is
-`frontend/` (Next.js) + `backend/` (Express).
+the Next.js app in `frontend/`.
 
 | Script | Purpose |
 |---|---|
-| `scripts/validate_rules.py` | Validates `data/markham_rules.json` against the schema in `docs/SPEC.md` §6 and prints a per-stream breakdown. Run before every demo. |
-| `scripts/generate_rules.py` | **TODO** — drafts the ~120-item knowledge base with Gemini, for a human to review and commit. |
+| `scripts/validate_rules.py` | Validates `data/markham_rules.json` against the schema in `docs/SPEC.md` §6, prints a per-stream breakdown and how many entries are still `"verified": false`. Run before every demo (`npm run validate:rules` from the repo root). |
+| `scripts/generate_rules.py` | Not implemented: the knowledge base already has 146 hand-written entries, so generation was not needed. Kept as a stub in case the list is ever rebuilt. |
 
 ## Setup
 

@@ -1,5 +1,4 @@
-// Shared domain types for the frontend. Mirrors backend/src/types.ts (keep in sync) and
-// docs/SPEC.md §4 / §6, plus the demo-mode shapes used by lib/store.tsx.
+// Shared domain types for the app. Mirrors docs/SPEC.md §4 / §6 plus the fields added after the hackathon.
 
 export const STREAMS = [
   "blue_box",
