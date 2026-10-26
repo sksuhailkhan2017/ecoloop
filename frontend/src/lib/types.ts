@@ -68,6 +68,8 @@ export type DisposalRule = {
   reusable: boolean;
   reuse_suggestion?: string;
   est_weight_g: number;
+  /** False until a human checked the entry against markham.ca "What Goes Where". */
+  verified?: boolean;
 };
 
 export type PointsReason =

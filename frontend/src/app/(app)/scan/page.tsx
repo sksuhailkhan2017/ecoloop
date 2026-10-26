@@ -9,9 +9,9 @@ import { SearchIcon, SparklesIcon, Spinner } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Field, inputClass } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
-import { ApiError } from "@/lib/api";
 import { nowIso, uid } from "@/lib/format";
-import { BACKEND_SCAN_ENABLED, scanWithBackend, warmBackend } from "@/lib/scan-api";
+import { SCAN_MAX_EDGE, downscaleDataUrl } from "@/lib/image";
+import { ScanApiError, scanWithApi } from "@/lib/scan-api";
 import { SCAN_MESSAGES, mockScan } from "@/lib/scan-mock";
 import { setScan } from "@/lib/session";
 import type { ScanResult } from "@/lib/types";
@@ -25,10 +25,6 @@ export default function ScanPage() {
   const [hint, setHint] = useState("");
   const [scanning, setScanning] = useState(false);
   const [msg, setMsg] = useState(0);
-
-  useEffect(() => {
-    warmBackend();
-  }, []);
 
   useEffect(() => {
     if (!scanning) return;
@@ -47,19 +43,25 @@ export default function ScanPage() {
     let id = uid();
     let result: ScanResult | null = null;
 
-    if (BACKEND_SCAN_ENABLED && photo) {
+    if (photo) {
       try {
-        const r = await scanWithBackend(photo, hint, "auto"); // the AI decides: item or receipt
-        id = r.scanId;
-        result = r.result;
+        const small = await downscaleDataUrl(photo, SCAN_MAX_EDGE, 0.8);
+        const r = await scanWithApi(small, hint, "auto"); // the AI decides: item or receipt
+        if ("fallback" in r) {
+          // Quota, timeout, not configured… the local rules matcher + "help us identify" take over.
+          toast.show({ title: "Using offline sorting", description: r.message, tone: "info" });
+          result = mockScan(hint);
+        } else {
+          id = r.scanId;
+          result = r.result;
+        }
       } catch (err) {
-        const message = err instanceof ApiError ? err.message : "Something went wrong.";
-        // Fall back to the built-in matcher so a backend hiccup never kills the demo.
+        const message = err instanceof ScanApiError ? err.message : "Something went wrong.";
         toast.show({ title: "Using offline sorting", description: message, tone: "info" });
         result = mockScan(hint);
       }
     } else {
-      await new Promise((r) => setTimeout(r, 2300));
+      await new Promise((r) => setTimeout(r, 900)); // hint-only: a beat of "thinking" so the UI reads as a scan
       result = mockScan(hint);
     }
 
